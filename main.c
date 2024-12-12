@@ -49,10 +49,42 @@
 #define FENCE   0b0001111
 #define SYSTEM  0b1110011
 
+//bit masks
+#define MASK_31     0b10000000000000000000000000000000
+#define MASK_31_25  0b11111110000000000000000000000000
+#define MASK_30_25  0b01111110000000000000000000000000
+#define MASK_30_21  0b01111111111000000000000000000000
+#define MASK_20     0b00000000000100000000000000000000
+#define MASK_19_12  0b00000000000011111111000000000000
+#define MASK_11_08  0b00000000000000000000011110000000
+#define MASK_11_07  0b00000000000000000000011111000000
+#define MASK_07     0b00000000000000000000000001000000
+
+
+#define MEM_SIZE 1000000
+
 
 void main(){
     // 0 in binary 32 bits
     //0b00000000000000000000000000000000
+    uint32_t pc = 0;
+    
+    /*
+    x[0] -> Zero
+    x[1] -> ra; return addres
+    x[2] -> sp; stack pointer
+    x[3] -> gp; global (var) pointer
+    x[4] -> tp; thread (local var) pointer
+    x[5:7], x[28:31] -> [t0:t6]
+    x[8:9], x[18:27] -> [s0:s11]
+    x[10:17], x[10,17] -> [a0:a7]
+    */
+    int32_t x[32];
+    x[0]=0;
+
+    
+    int32_t M[MEM_SIZE];
+
     uint32_t inst = 0b1011;
 
     uint8_t opcode = inst       & 0b1111111;
@@ -60,89 +92,103 @@ void main(){
     uint8_t func3 = (inst>>12)  & 0b111;
     uint8_t rs1 =   (inst>>15)  & 0b11111;
     uint8_t rs2 =   (inst>>20)  & 0b11111;
-    
+
+    int32_t imm;
+    uint32_t uimm;
+
     switch (opcode) {
         case LUI:
             //Load Upper Immediate
             //imm[31:12] , rd , opcode
-            int32_t imm = (inst >> 12);
-            //x[rd] = sign_extend(imm << 12);
+            imm = (inst & 0b11111111111111111111000000000000);
+            x[rd] = imm;
             break;
 
         case AUIPC:
             //Add Upper Immediate to PC
             //imm[31:12] , rd , opcode
-            int32_t imm = (inst >> 12);
-            //x[rd] = pc + sign_extend(imm << 12);
+            imm = (inst & 0b11111111111111111111000000000000);
+            x[rd] = pc + imm;
             break;
 
         case JAL:
             //Jump And Link
-            //offset[20|10:1|11|19:12] , rd , opcode
-            //x[rd] = pc+4;
-            //pc += sign_extend(offset)
+            //offset[20|10:01|11|19:12] , rd , opcode
+
+            //inst [31|30:21|20|19:12] 
+            //imm_ [20|10:01|11|19:12]
+            imm = (inst & MASK_19_12) | ((inst & MASK_20) >> 9) | ((inst & MASK_30_21) >> 20) | ((inst & MASK_31) >> 11);
+
+            //sign extend
+            if(imm & 0b100000000000000000000){
+                imm = imm | 0b11111111111100000000000000000000; 
+            }
+
+            x[rd] = pc+4;
+            pc += imm;
             break;
 
         case JALR:
             //Jump And Link Register
             //imm rs1 func3 rd opcode
-            int16_t imm = inst & (0b111111111111 << 19);
-            // t = pc + 4;
-            // pc = (x[rs1] + signed_extend(offset))&~1;
-            // x[rd] = t;
+            imm = (inst>>20) & 0b111111111111;
+            if(imm & 0b100000000000){
+                imm = imm | 0b11111111111111111111100000000000;
+            }
+            uint32_t t = pc + 4;
+            pc = (x[rs1] + imm) & (~1);
+            x[rd] = t;
             break;
 
         case BRANCH:
             //Branches
-            //imm[12|10:5] , rs2 , rs1 , func3 , imm[4:1|11] , opcode
+            //imm[12|10:05] , rs2 , rs1 , func3 , imm[04:01|11] , opcode
+            
+            //inst [31|30:25|11:08|07]
+            //imm [12|10:05|04:01|11]
+            imm = ((inst & MASK_31) >> 19) | ((inst & MASK_30_25) >> 20) | ((inst & MASK_11_08) >> 7) | ((inst & MASK_07) << 4);
+
+            //sign extender
+            if(imm & 0b1000000000000){
+                imm = imm | 0b11111111111111111111000000000000;
+            }
+
             switch (func3) {
                 case FUNC3_BEQ:
                     //Branch EQual
-                    /*
                     if(x[rs1] == x[rs2]) {
-                        pc += sign_extend(offset)
+                        pc += imm;
                     }
-                    */
                     break;
                 case FUNC3_BNE:
                     //Branch Not Equal
-                    /*
                     if(x[rs1] != x[rs2]) {
-                        pc += sign_extend(offset)
+                        pc += imm;
                     }
-                    */
                     break;
                 case FUNC3_BLT:
                     //Branch Lower Than
-                    /*
-                    if(x[rs1] < signed x[rs2]) {
-                        pc += sign_extend(offset)
+                    if(x[rs1] < x[rs2]) {
+                        pc += imm;
                     }
-                    */
                     break;
                 case FUNC3_BGE:  
                     //Branch Greater or Equal
-                    /*
-                    if(x[rs1] >= signed x[rs2]) {
-                        pc += sign_extend(offset)
+                    if(x[rs1] >= x[rs2]) {
+                        pc += imm;
                     }
-                    */
                     break;
                 case FUNC3_BLTU:  
                     //Branch Lower Than Unsigned
-                    /*
-                    if(x[rs1] < unsigned x[rs2]) {
-                        pc += sign_extend(offset)
+                    if((uint32_t) x[rs1] < (uint32_t) x[rs2]) {
+                        pc += imm;
                     }
-                    */
                     break;
                 case FUNC3_BGEU:  
                     //Branch greater Than Unsigned
-                    /*
-                    if(x[rs1] >= unsigned x[rs2]) {
-                        pc += sign_extend(offset)
+                    if((uint32_t) x[rs1] >= (uint32_t) x[rs2]) {
+                        pc += imm;
                     }
-                    */
                     break;
             }
             break;
@@ -150,27 +196,43 @@ void main(){
         case LOAD:
             //Load
             //imm[11:0] , rs1 , func3 , rd , opcode
-            int16_t imm = inst & (0b111111111111 << 19);
+            imm = (inst>>20) & 0b111111111111;
+
+            //sign extender
+            if(imm & 0b100000000000){
+                imm = imm | 0b11111111111111111111100000000000;
+            }
+            
+            int32_t mem;
+
             switch (func3) {
                 case FUNC3_LB:
                     //Load Byte
-                    //x[rd] = sign_extend(M[x[rs1] + sign_extend(offset)][7:0])
+                    mem = M[x[rs1] + imm] & 0b11111111;
+                    if(mem & 0b10000000){
+                        mem = mem | 0b11111111111111111111111110000000;
+                    }
+                    x[rd] = mem;
                     break;
                 case FUNC3_LH:
                     //Load Halfword
-                    //x[rd] = sign_extend(M[x[rs1] + sign_extend(offset)][15:0])
+                    mem = M[x[rs1] + imm] & 0b1111111111111111;
+                    if(mem & 0b1000000000000000){
+                        mem = mem | 0b11111111111111111000000000000000;
+                    }
+                    x[rd] = mem;
                     break;
                 case FUNC3_LW:
                     //Load Word
-                    //x[rd] = sign_extend(M[x[rs1] + sext(offset)][31:0])
+                    x[rd] = M[x[rs1] + imm];
                     break;
                 case FUNC3_LBU:
                     //Load Byte Unsigned
-                    //x[rd] = M[x[rs1] + sext(offset)][7:0]
+                    x[rd] = M[x[rs1] + imm] & 0b11111111;
                     break;
                 case FUNC3_LHU:
                     //Load Halfword Unsigned
-                    //x[rd] = M[x[rs1] + sext(offset)][15:0]
+                    x[rd] = M[x[rs1] + imm] & 0b1111111111111111;
                     break;
             }
             break;
@@ -178,18 +240,28 @@ void main(){
         case STORE:
             //Store
             //imm[11:5] , rs2 , rs1 , func3 , imm[4:0] , opcode
+            
+            //inst_ [31:25|11:07]
+            //imm [11:05|04:00]
+            imm = ((inst & MASK_31_25) >> 20) | ((inst & MASK_11_07) >> 7);
+            
+            //sign extender
+            if(imm & 0b100000000000){
+                imm = imm | 0b11111111111111111111100000000000;
+            }
+
             switch (func3) {
                 case FUNC3_SB:
                     //Load Byte
-                    //M[x[rs1] + sign_extend(offset)] = x[rs2][7:0]
+                    M[x[rs1] + imm] = x[rs2] & 0b11111111;
                     break;
                 case FUNC3_SH:
                     //Load Halfword
-                    //M[x[rs1] + sign_extend(offset)] = x[rs2][15:0]
+                    M[x[rs1] + imm] = x[rs2] & 0b111111111111111;
                     break;
                 case FUNC3_SW:
                     //Load Word
-                    //M[x[rs1] + sign_extend(offset)] = x[rs2][31:0]
+                    M[x[rs1] + imm] = x[rs2];
                     break;
             }
             break;
@@ -197,106 +269,112 @@ void main(){
         case OP_IMM:
             //OPeration with Immediate
             //imm[11:0] , rs1 , func3 , rd , opcode
-            uint16_t imm = inst >> 20;
+            uimm = inst >> 20;
+            imm = uimm;
+            
+            //sign extender
+            if(imm & 0b100000000000){
+                imm = imm | 0b11111111111111111111100000000000;
+            }
+
+            uint8_t shamt = rs2;
+            
             switch (func3) {
                 case FUNC3_ADDI:
                     //ADD Immediate
-                    //x[rd] = x[rs1] + sign_extend(imm)
+                    x[rd] = x[rs1] + imm;
                     break;
 
                 case FUNC3_SLTI:
                     //Set Less Than Immediate
-                    //x[rd] = x[rs1] < s sign_extend(imm)
+                    x[rd] = x[rs1] < imm ? 0b1 : 0b0;
                     break;
 
                 case FUNC3_SLTIU:
                     //Set Lower Than Immediate Unsigned
-                    //x[rd] = x[rs1] < u sign_extend(imm)
+                    x[rd] = (uint32_t) x[rs1] < uimm ? 0b1 : 0b0;
                     break;
 
                 case FUNC3_XORI:
                     //eXclusive OR Immediate
-                    //x[rd] = x[rs1] ^ sign_extend(imm)
+                    x[rd] = x[rs1] ^ imm;
                     break;
 
                 case FUNC3_ORI :
                     //OR Immediate
-                    //x[rd] = x[rs1] | sign_extend(imm)
+                    x[rd] = x[rs1] | imm;
                     break;
 
                 case FUNC3_ANDI:
                     //AND Immediate
-                    //x[rd] = x[rs1] & sign_extend(imm)
+                    x[rd] = x[rs1] & imm;
                     break;
                 
                 case FUNC3_SLLI:
                     //Shift Logical Left Immediate
-                    int8_t shamt = rs2;
-                    //x[rd] = x[rs1] << shamt
+                    x[rd] = x[rs1] << shamt;
                     break;
 
                 case FUNC3_SRxI:
-                    int8_t shamt = rs2;
-                    imm = imm >> 5;
-                    if (imm != 0b0100000){
-                        //Shift Right Logical Immediate
-                        //x[rd] = x[rs1] >> unsigned shamt
-                    } else {
+                    
+                    if (imm & 0b010000000000){
                         //Shift Right Arithmetic Immediate
-                        //x[rd] = x[rs1] >> signed shamt
+                        x[rd] = x[rs1] >> shamt;
+                    } else {
+                        //Shift Right Logical Immediate
+                        x[rd] = (uint32_t) x[rs1] >> shamt;
                     }
                     break;
-
             }
             break;
 
         case OP:
             //Operations
             //const , rs2 , rs1 , func3 , rd , opcode
-            int8_t k = inst >> 25;
+            int8_t k = inst >> 30;
             switch(func3) {
                 case FUNC3_ADD_SUB:
-                    if(k != 0b0100000){
-                        //ADD
-                        //x[rd] = x[rs1] + x[rs2] 
-                    }else{
+                    if(k){
                         //SUB
-                        //x[rd] = x[rs1] - x[rs2]
+                        x[rd] = x[rs1] - x[rs2];
+                    }else{
+                        //ADD
+                        x[rd] = x[rs1] + x[rs2]; 
                     }
                     break;
                 case FUNC3_SLL:
                     //Shift Logical Left
-                    //x[rd] = x[rs1] << x[rs2]
+                    x[rd] = x[rs1] << x[rs2];
                     break;
                 case FUNC3_SLT:
                     //Set Lower Than
-                    //x[rd] = x[rs1] < signed x[rs2]
+                    x[rd] = x[rs1] < x[rs2]? 0b1 : 0b0;
                     break;
                 case FUNC3_SLTU:
                     //Set Lower Than Unsigned
-                    //x[rd] = x[rs1] < unsigned x[rs2]
+                    x[rd] = (uint32_t) x[rs1] < (uint32_t) x[rs2];
                     break;
                 case FUNC3_XOR:
                     //eXlusive OR
-                    //x[rd] = x[rs1] ^ x[rs2]
+                    x[rd] = x[rs1] ^ x[rs2];
                     break;
                 case FUNC3_SRx:
                     //Shift Right
-                    if(k != 0b0100000){
+                    if(k){
                         //Shift Right Logical
-                        //x[rd] = x[rs1] >> unsigned x[rs2]
+                        x[rd] = (uint32_t) x[rs1] >> x[rs2];
                     }else{
                         //Shift Right Arithmetic
-                        //x[rd] = x[rs1] >> signed x[rs2]
+                        x[rd] = x[rs1] >> x[rs2];
                     }
                     break;
                 case FUNC3_OR:
                     //OR
-                    //x[rd] = x[rs1] | x[rs2]
+                    x[rd] = x[rs1] | x[rs2];
                     break;
                 case FUNC3_AND:
                     //AND
-                    //x[rd] = x[rs1] & x[rs2]
+                    x[rd] = x[rs1] & x[rs2];
                     break;
 
             }

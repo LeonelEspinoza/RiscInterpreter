@@ -3,53 +3,62 @@
 #include <stdint.h>
 #include <string.h>
 
-#define LUI     0b0110111
-#define AUIPC   0b0010111 
-#define JAL     0b1101111
-#define JALR    0b1100111
+#define LUI     0b0110111 //0x37
+#define AUIPC   0b0010111 //0x17
+#define JAL     0b1101111 //0x6f
+#define JALR    0b1100111 //0x67
 
-#define BRANCH  0b1100011
-#define FUNC3_BEQ   0b000
-#define FUNC3_BNE   0b001
-#define FUNC3_BLT   0b100
-#define FUNC3_BGE   0b101
-#define FUNC3_BLTU  0b110
-#define FUNC3_BGEU  0b111
+#define BRANCH  0b1100011 //0x63
+#define FUNC3_BEQ   0b000   //0x
+#define FUNC3_BNE   0b001   //0x
+#define FUNC3_BLT   0b100   //0x
+#define FUNC3_BGE   0b101   //0x
+#define FUNC3_BLTU  0b110   //0x
+#define FUNC3_BGEU  0b111   //0x
 
-#define LOAD    0b0000011
-#define FUNC3_LB    0b000
-#define FUNC3_LH    0b001
-#define FUNC3_LW    0b010
-#define FUNC3_LBU   0b100
-#define FUNC3_LHU   0b101
+#define LOAD    0b0000011 //0x3
+#define FUNC3_LB    0b000   //0x0
+#define FUNC3_LH    0b001   //0x1
+#define FUNC3_LW    0b010   //0x2
+#define FUNC3_LBU   0b100   //0x4
+#define FUNC3_LHU   0b101   //0x5
 
-#define STORE   0b0100011
-#define FUNC3_SB    0b000
-#define FUNC3_SH    0b001
-#define FUNC3_SW    0b010
+#define STORE   0b0100011 //0x23
+#define FUNC3_SB    0b000   //0x0
+#define FUNC3_SH    0b001   //0x1
+#define FUNC3_SW    0b010   //0x2
 
-#define OP_IMM  0b0010011
-#define FUNC3_ADDI  0b000
-#define FUNC3_SLTI  0b010
-#define FUNC3_SLTIU 0b011
-#define FUNC3_XORI  0b100
-#define FUNC3_ORI   0b110
-#define FUNC3_ANDI  0b111
-#define FUNC3_SLLI  0b001
-#define FUNC3_SRxI  0b101
+#define OP_IMM  0b0010011 //0x13
+#define FUNC3_ADDI  0b000   //0x0
+#define FUNC3_SLTI  0b010   //0x2
+#define FUNC3_SLTIU 0b011   //0x3
+#define FUNC3_XORI  0b100   //0x4
+#define FUNC3_ORI   0b110   //0x6
+#define FUNC3_ANDI  0b111   //0x7
+#define FUNC3_SLLI  0b001   //0x1
+#define FUNC3_SRxI  0b101   //0x5
 
-#define OP      0b0110011
-#define FUNC3_ADD_SUB   0b000
-#define FUNC3_SLL       0b001
-#define FUNC3_SLT       0b010
-#define FUNC3_SLTU      0b011
-#define FUNC3_XOR       0b100
-#define FUNC3_SRx       0b101
-#define FUNC3_OR        0b110
-#define FUNC3_AND       0b111
+#define OP      0b0110011 //0x33
+#define FUNC3_ADD_SUB   0b000   //0x0
+#define FUNC3_SLL       0b001   //0x1
+#define FUNC3_SLT       0b010   //0x2
+#define FUNC3_SLTU      0b011   //0x3
+#define FUNC3_XOR       0b100   //0x4
+#define FUNC3_SRx       0b101   //0x5
+#define FUNC3_OR        0b110   //0x6
+#define FUNC3_AND       0b111   //0x7
 
-#define FENCE   0b0001111
-#define SYSTEM  0b1110011
+#define FUNC3_MUL       0b000   //0x0
+#define FUNC3_MULH      0b001   //0x1
+#define FUNC3_MULHSU    0b010   //0x2
+#define FUNC3_MULHU     0b011   //0x3
+#define FUNC3_DIV       0b100   //0x4
+#define FUNC3_DIVU      0b101   //0x5
+#define FUNC3_REM       0b110   //0x6
+#define FUNC3_REMU      0b111   //0x7
+
+#define FENCE   0b0001111 //0xf
+#define SYSTEM  0b1110011 //0x73
 
 //bit masks
 #define MASK_31     0b10000000000000000000000000000000
@@ -111,6 +120,7 @@ int line_counter(char* file_path){
 
 int main(int argc, char *argv[]){
     printf("Begin\n");
+
     //Check if arg count is 2
     if(argc!=2){
         printf("Missing .ram file path. ");
@@ -158,10 +168,16 @@ int main(int argc, char *argv[]){
             printf("Error while converting str hex to long int.\n");
         } else if (*endptr != '\n' && *endptr != '\0'){
             printf("Invalid character: %c\n",*endptr);
+            //return 1;
         }
         program_lines[i] = hex_int;
-        printf("program_lines[%d]: %lu\n",i, program_lines[i]);
+        //printf("program_lines[%d]: %x\n",i, program_lines[i]);
     }
+
+    if(ferror(f_ptr)){
+        perror("Error occurred while reading file\n");
+    }
+    fclose(f_ptr);
 
     /*
     Registers availables
@@ -181,34 +197,41 @@ int main(int argc, char *argv[]){
     }
 
     //Pseudo memory
-    int32_t M[MEM_SIZE];
+    int32_t M[MEM_SIZE] = {0};
     
     // 0 in binary 32 bits
     //0b00000000000000000000000000000000
-    uint32_t pc = 0;
+    uint32_t pc = 8;
 
     while(1){
-        if(pc>=n_lines){
+        if(pc>=n_lines*4){
             break;
         }
+        printf("Program counter: %d\n",pc);
 
         //isntruction to interpret
-        uint32_t inst = program_lines[pc];
+        uint32_t inst = program_lines[pc/4];
+        printf("inst: 0x%x\n", inst);
 
         //operation code in instruction
         uint8_t opcode = inst       & 0b1111111;
+        printf("opcode: 0x%x\n", opcode);
 
         //register destiny in instruction
         uint8_t rd =    (inst>>7)   & 0b11111;
+        printf("rd: %d\n", rd);
         
         //func3 in instruction
         uint8_t func3 = (inst>>12)  & 0b111;
+        printf("func3: 0x%x\n", func3);
 
         //register source 1 in instruction
         uint8_t rs1 =   (inst>>15)  & 0b11111;
+        printf("rs1: %d\n", rs1);
         
         //register source 2 in instruction
         uint8_t rs2 =   (inst>>20)  & 0b11111;
+        printf("rs2: %d\n", rs2);
 
         //auxiliar immediate
         int32_t imm;
@@ -240,6 +263,13 @@ int main(int argc, char *argv[]){
 
                 //inst [31|30:21|20|19:12] 
                 //imm_ [20|10:01|11|19:12]
+                /*
+                20
+                0  0000000010 0 00000000
+                offset 000000000000000000100
+                rd 01010 
+                opcode 1101111
+                */
                 imm = (inst & MASK_19_12) | ((inst & MASK_20) >> 9) | ((inst & MASK_30_21) >> 20) | ((inst & MASK_31) >> 11);
 
                 //sign extend
@@ -516,12 +546,79 @@ int main(int argc, char *argv[]){
             //Operations
             case OP:
                 //const , rs2 , rs1 , func3 , rd , opcode
-                int8_t k = inst >> 30;
+                int8_t sum_bool = (inst >> 30) & 0b1;
+                int8_t mul_bool = (inst >> 25) & 0b1;
+
+                if(mul_bool){
+                    int64_t mul;
+                    switch (func3){
+                        
+                        //MULtiplication 
+                        case FUNC3_MUL:
+                            x[rd] = x[rs1] * x[rs2];
+                            pc += 4;
+                            break;
+                        
+                        //MULtiplication Half
+                        case FUNC3_MULH:
+                            mul = (x[rs1] * x[rs2]);
+                            x[rd] = mul >> 32;
+                            pc += 4;
+                            break;
+                        
+                        //MULtiplication Half Signed Unsigned
+                        case FUNC3_MULHSU:
+                            mul = ((int32_t) (x[rs1] * ((uint32_t) x[rs2])));
+                            x[rd] = mul >> 32;
+                            pc += 4;
+                            break;
+                        
+                        //MULtiplication Half Unsigned
+                        case FUNC3_MULHU:
+                            uint64_t u_mul = (((uint32_t) x[rs1]) * ((uint32_t) x[rs2]));
+                            x[rd] = u_mul >> 32;
+                            pc += 4;
+                            break;
+                        
+                        //DIVision
+                        case FUNC3_DIV:
+                            x[rd] = x[rs1] / x[rs2];
+                            pc += 4;
+                            break;
+                        
+                        //DIVision Unsigned
+                        case FUNC3_DIVU:
+                            x[rd] = ((uint32_t) x[rs1]) / ((uint32_t) x[rs2]);
+                            pc += 4;
+                            break;
+                        
+                        
+                        //REMainder
+                        case FUNC3_REM:
+                            x[rd] = x[rs1] % x[rs2];
+                            pc += 4;
+                            break;
+                        
+                        //REMainder Unsigned
+                        case FUNC3_REMU:
+                            x[rd] = ((uint32_t) x[rs1]) % ((uint32_t) x[rs2]);
+                            pc += 4;
+                            break;
+                            
+                        default:
+                            printf("Operation Mul/Div error func3\n");
+                            printf("Instruction: %x\n",inst);
+                            printf("operation code: %x\n",opcode);
+                            printf("Func_3: %x\n", func3);
+                            return 1;
+                    }
+                    break;
+                }
                 switch(func3) {
 
                     //ADD / SUB
                     case FUNC3_ADD_SUB:
-                        if(k){
+                        if(sum_bool){
                             //SUB
                             x[rd] = x[rs1] - x[rs2];
                             pc += 4;
@@ -558,7 +655,7 @@ int main(int argc, char *argv[]){
 
                     //Shift Right L/A
                     case FUNC3_SRx:
-                        if(k){
+                        if(sum_bool){
                             //Shift Right Logical
                             x[rd] = (uint32_t) x[rs1] >> x[rs2];
                         }else{
@@ -616,11 +713,15 @@ int main(int argc, char *argv[]){
                 return 1;
 
         }
+
+        if(pc>=n_lines*4){
+            printf("Program Counter value out of range\n");
+            printf("pc: %u\n",pc);
+            printf("n_lines*4: %d\n",n_lines*4);
+            return 1;
+        }
     }
-    if(ferror(f_ptr)){
-        perror("Error occurred while reading file\n");
-    }
-    fclose(f_ptr);
+
     printf("finish\n");
     return 0;
 }

@@ -201,13 +201,13 @@ int main(int argc, char *argv[]){
     
     // 0 in binary 32 bits
     //0b00000000000000000000000000000000
-    uint32_t pc = 8;
+    uint32_t pc = 682*4 -1;
 
     while(1){
         if(pc>=n_lines*4){
             break;
         }
-        printf("Program counter: %d\n",pc);
+        //printf("Program counter: %d\n",pc);
 
         //isntruction to interpret
         uint32_t inst = program_lines[pc/4];
@@ -459,7 +459,7 @@ int main(int argc, char *argv[]){
                     case FUNC3_SB:
                         printf("SB imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         M[x[rs1] + imm] = x[rs2] & 0b11111111;
-                        print("stored: %d\n", M[x[rs1] + imm]);
+                        printf("stored: %d\n", M[x[rs1] + imm]);
                         pc += 4;
                         break;
 
@@ -467,7 +467,7 @@ int main(int argc, char *argv[]){
                     case FUNC3_SH:
                         printf("SH imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         M[x[rs1] + imm] = x[rs2] & 0b111111111111111;
-                        print("stored: %d\n", M[x[rs1] + imm]);
+                        printf("stored: %d\n", M[x[rs1] + imm]);
                         pc += 4;
                         break;
 
@@ -475,7 +475,7 @@ int main(int argc, char *argv[]){
                     case FUNC3_SW:
                         printf("SW imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         M[x[rs1] + imm] = x[rs2];
-                        print("stored: %d\n", M[x[rs1] + imm]);
+                        printf("stored: %d\n", M[x[rs1] + imm]);
                         pc += 4;
                         break;
 

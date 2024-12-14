@@ -211,27 +211,27 @@ int main(int argc, char *argv[]){
 
         //isntruction to interpret
         uint32_t inst = program_lines[pc/4];
-        printf("inst: 0x%x\n", inst);
+        //printf("inst: 0x%x\n", inst);
 
         //operation code in instruction
         uint8_t opcode = inst       & 0b1111111;
-        printf("opcode: 0x%x\n", opcode);
+        //printf("opcode: 0x%x\n", opcode);
 
         //register destiny in instruction
         uint8_t rd =    (inst>>7)   & 0b11111;
-        printf("rd: %d\n", rd);
+        //printf("rd: %d\n", rd);
         
         //func3 in instruction
         uint8_t func3 = (inst>>12)  & 0b111;
-        printf("func3: 0x%x\n", func3);
+        //printf("func3: 0x%x\n", func3);
 
         //register source 1 in instruction
         uint8_t rs1 =   (inst>>15)  & 0b11111;
-        printf("rs1: %d\n", rs1);
+        //printf("rs1: %d\n", rs1);
         
         //register source 2 in instruction
         uint8_t rs2 =   (inst>>20)  & 0b11111;
-        printf("rs2: %d\n", rs2);
+        //printf("rs2: %d\n", rs2);
 
         //auxiliar immediate
         int32_t imm;
@@ -245,6 +245,8 @@ int main(int argc, char *argv[]){
             case LUI:
                 //imm[31:12] , rd , opcode
                 imm = (inst & 0b11111111111111111111000000000000);
+                printf("LUI imm: %lu rd: %u\n", imm, rd);
+
                 x[rd] = imm;
                 pc += 4;
                 break;
@@ -253,6 +255,7 @@ int main(int argc, char *argv[]){
             case AUIPC:
                 //imm[31:12] , rd , opcode
                 imm = (inst & 0b11111111111111111111000000000000);
+                printf("AUIPC imm: %lu rd: %u\n", imm, rd);
                 x[rd] = pc + imm;
                 pc += 4;
                 break;
@@ -276,7 +279,7 @@ int main(int argc, char *argv[]){
                 if(imm & 0b100000000000000000000){
                     imm = imm | 0b11111111111100000000000000000000; 
                 }
-
+                printf("JAL offset: %lu rd: %u\n", imm, rd);
                 x[rd] = pc+4;
                 pc += imm;
                 break;
@@ -290,7 +293,7 @@ int main(int argc, char *argv[]){
                 if(imm & 0b100000000000){
                     imm = imm | 0b11111111111111111111100000000000;
                 }
-                
+                printf("JALR offset: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                 uint32_t t = pc + 4;
                 pc = (x[rs1] + imm) & (~1);
                 x[rd] = t;
@@ -313,6 +316,7 @@ int main(int argc, char *argv[]){
 
                     //Branch EQual
                     case FUNC3_BEQ:
+                        printf("BEQ imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         if(x[rs1] == x[rs2]) {
                             pc += imm;
                         }
@@ -320,6 +324,7 @@ int main(int argc, char *argv[]){
 
                     //Branch Not Equal
                     case FUNC3_BNE:
+                        printf("BNE imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         if(x[rs1] != x[rs2]) {
                             pc += imm;
                         }
@@ -327,6 +332,7 @@ int main(int argc, char *argv[]){
 
                     //Branch Lower Than
                     case FUNC3_BLT:
+                        printf("BLT imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         if(x[rs1] < x[rs2]) {
                             pc += imm;
                         }
@@ -334,6 +340,7 @@ int main(int argc, char *argv[]){
 
                     //Branch Greater or Equal
                     case FUNC3_BGE:  
+                        printf("BGE imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         if(x[rs1] >= x[rs2]) {
                             pc += imm;
                         }
@@ -341,6 +348,7 @@ int main(int argc, char *argv[]){
 
                     //Branch Lower Than Unsigned
                     case FUNC3_BLTU:  
+                        printf("BLTU imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         if((uint32_t) x[rs1] < (uint32_t) x[rs2]) {
                             pc += imm;
                         }
@@ -348,6 +356,7 @@ int main(int argc, char *argv[]){
 
                     //Branch greater Than Unsigned
                     case FUNC3_BGEU:  
+                        printf("BGEU imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         if((uint32_t) x[rs1] >= (uint32_t) x[rs2]) {
                             pc += imm;
                         }
@@ -377,39 +386,49 @@ int main(int argc, char *argv[]){
                 switch (func3) {
                     //Load Byte
                     case FUNC3_LB:
+                        printf("LB imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         mem = M[x[rs1] + imm] & 0b11111111;
                         if(mem & 0b10000000){
                             mem = mem | 0b11111111111111111111111110000000;
                         }
                         x[rd] = mem;
+                        printf("x[rd]: %d\n",x[rd]);
                         pc += 4;
                         break;
 
                     //Load Halfword
                     case FUNC3_LH:
+                        printf("LH imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         mem = M[x[rs1] + imm] & 0b1111111111111111;
                         if(mem & 0b1000000000000000){
                             mem = mem | 0b11111111111111111000000000000000;
                         }
                         x[rd] = mem;
+                        printf("x[rd]: %d\n",x[rd]);
                         pc += 4;
                         break;
 
                     //Load Word
                     case FUNC3_LW:
+                        printf("LW imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = M[x[rs1] + imm];
+                        printf("x[rd]: %d\n",x[rd]);
                         pc += 4;
                         break;
 
                     //Load Byte Unsigned
                     case FUNC3_LBU:
+                        printf("LBU imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = M[x[rs1] + imm] & 0b11111111;
+                        printf("x[rd]: %d\n",x[rd]);
                         pc += 4;
                         break;
 
                     //Load Halfword Unsigned
                     case FUNC3_LHU:
+                        printf("LHU imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = M[x[rs1] + imm] & 0b1111111111111111;
+                        printf("x[rd]: %d\n",x[rd]);
                         pc += 4;
                         break;
                         
@@ -438,19 +457,25 @@ int main(int argc, char *argv[]){
                 switch (func3) {
                     //Store Byte
                     case FUNC3_SB:
+                        printf("SB imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         M[x[rs1] + imm] = x[rs2] & 0b11111111;
+                        print("stored: %d\n", M[x[rs1] + imm]);
                         pc += 4;
                         break;
 
                     //Store Halfword
                     case FUNC3_SH:
+                        printf("SH imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         M[x[rs1] + imm] = x[rs2] & 0b111111111111111;
+                        print("stored: %d\n", M[x[rs1] + imm]);
                         pc += 4;
                         break;
 
                     //Store Word
                     case FUNC3_SW:
+                        printf("SW imm: %lu rs1: %u rs2: %u\n", imm, rs1, rs2);
                         M[x[rs1] + imm] = x[rs2];
+                        print("stored: %d\n", M[x[rs1] + imm]);
                         pc += 4;
                         break;
 
@@ -480,42 +505,49 @@ int main(int argc, char *argv[]){
 
                     //ADD Immediate
                     case FUNC3_ADDI:
+                        printf("ADDI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = x[rs1] + imm;
                         pc += 4;
                         break;
 
                     //Set Less Than Immediate
                     case FUNC3_SLTI:
+                        printf("SLTI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = x[rs1] < imm ? 0b1 : 0b0;
                         pc += 4;
                         break;
 
                     //Set Lower Than Immediate Unsigned
                     case FUNC3_SLTIU:
+                        printf("SLTIU imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = (uint32_t) x[rs1] < uimm ? 0b1 : 0b0;
                         pc += 4;
                         break;
 
                     //eXclusive OR Immediate
                     case FUNC3_XORI:
+                        printf("XORI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = x[rs1] ^ imm;
                         pc += 4;
                         break;
 
                     //OR Immediate
                     case FUNC3_ORI :
+                        printf("ORI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = x[rs1] | imm;
                         pc += 4;
                         break;
 
                     //AND Immediate
                     case FUNC3_ANDI:
+                        printf("ANDI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = x[rs1] & imm;
                         pc += 4;
                         break;
                     
                     //Shift Logical Left Immediate
                     case FUNC3_SLLI:
+                        printf("SLLI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                         x[rd] = x[rs1] << shamt;
                         pc += 4;
                         break;
@@ -525,10 +557,12 @@ int main(int argc, char *argv[]){
                         
                         if (imm & 0b010000000000){
                             //Shift Right Arithmetic Immediate
+                            printf("SRAI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                             x[rd] = x[rs1] >> shamt;
                             pc += 4;
                         } else {
                             //Shift Right Logical Immediate
+                            printf("SRLI imm: %lu rs1: %u rd: %u\n", imm, rs1, rd);
                             x[rd] = (uint32_t) x[rs1] >> shamt;
                             pc += 4;
                         }
@@ -555,12 +589,14 @@ int main(int argc, char *argv[]){
                         
                         //MULtiplication 
                         case FUNC3_MUL:
+                            printf("MUL rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = x[rs1] * x[rs2];
                             pc += 4;
                             break;
                         
                         //MULtiplication Half
                         case FUNC3_MULH:
+                            printf("MULH rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             mul = (x[rs1] * x[rs2]);
                             x[rd] = mul >> 32;
                             pc += 4;
@@ -568,6 +604,7 @@ int main(int argc, char *argv[]){
                         
                         //MULtiplication Half Signed Unsigned
                         case FUNC3_MULHSU:
+                            printf("MULHSU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             mul = ((int32_t) (x[rs1] * ((uint32_t) x[rs2])));
                             x[rd] = mul >> 32;
                             pc += 4;
@@ -575,6 +612,7 @@ int main(int argc, char *argv[]){
                         
                         //MULtiplication Half Unsigned
                         case FUNC3_MULHU:
+                            printf("MULHU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             uint64_t u_mul = (((uint32_t) x[rs1]) * ((uint32_t) x[rs2]));
                             x[rd] = u_mul >> 32;
                             pc += 4;
@@ -582,12 +620,14 @@ int main(int argc, char *argv[]){
                         
                         //DIVision
                         case FUNC3_DIV:
+                            printf("DIV rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = x[rs1] / x[rs2];
                             pc += 4;
                             break;
                         
                         //DIVision Unsigned
                         case FUNC3_DIVU:
+                            printf("DIVU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = ((uint32_t) x[rs1]) / ((uint32_t) x[rs2]);
                             pc += 4;
                             break;
@@ -595,12 +635,14 @@ int main(int argc, char *argv[]){
                         
                         //REMainder
                         case FUNC3_REM:
+                            printf("REM rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = x[rs1] % x[rs2];
                             pc += 4;
                             break;
                         
                         //REMainder Unsigned
                         case FUNC3_REMU:
+                            printf("REMU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = ((uint32_t) x[rs1]) % ((uint32_t) x[rs2]);
                             pc += 4;
                             break;
@@ -620,10 +662,12 @@ int main(int argc, char *argv[]){
                     case FUNC3_ADD_SUB:
                         if(sum_bool){
                             //SUB
+                            printf("SUB rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = x[rs1] - x[rs2];
                             pc += 4;
                         }else{
                             //ADD
+                            printf("ADD rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = x[rs1] + x[rs2]; 
                             pc += 4;
                         }
@@ -631,24 +675,28 @@ int main(int argc, char *argv[]){
 
                     //Shift Logical Left
                     case FUNC3_SLL:
+                        printf("SLL rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                         x[rd] = x[rs1] << x[rs2];
                         pc += 4;
                         break;
 
                     //Set Lower Than
                     case FUNC3_SLT:
+                        printf("SLT rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                         x[rd] = x[rs1] < x[rs2]? 0b1 : 0b0;
                         pc += 4;
                         break;
 
                     //Set Lower Than Unsigned
                     case FUNC3_SLTU:
+                        printf("SLTU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                         x[rd] = (uint32_t) x[rs1] < (uint32_t) x[rs2];
                         pc += 4;
                         break;
 
                     //eXlusive OR
                     case FUNC3_XOR:
+                        printf("XOR rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                         x[rd] = x[rs1] ^ x[rs2];
                         pc += 4;
                         break;
@@ -657,9 +705,11 @@ int main(int argc, char *argv[]){
                     case FUNC3_SRx:
                         if(sum_bool){
                             //Shift Right Logical
+                            printf("SRT rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = (uint32_t) x[rs1] >> x[rs2];
                         }else{
                             //Shift Right Arithmetic
+                            printf("SRA rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             x[rd] = x[rs1] >> x[rs2];
                         }
                         pc += 4;
@@ -667,12 +717,14 @@ int main(int argc, char *argv[]){
 
                     //OR
                     case FUNC3_OR:
+                        printf("OR rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                         x[rd] = x[rs1] | x[rs2];
                         pc += 4;
                         break;
 
                     //AND
                     case FUNC3_AND:
+                        printf("AND rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                         x[rd] = x[rs1] & x[rs2];
                         pc += 4;
                         break;

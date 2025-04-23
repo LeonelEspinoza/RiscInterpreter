@@ -27,7 +27,7 @@ LDLIBS=-lm
 XTRA=
 
 all:
-	less README.txt
+	less README.md
 
 %.gcc: %.c
 	gcc -o $@ $< -lelf

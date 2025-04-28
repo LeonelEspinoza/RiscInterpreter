@@ -61,10 +61,10 @@ int main(int argc, char **argv) {
         }
 
         // value
-        printf("Value: 0x%.8lu", sym.st_value);
+        printf("Value: 0x%.8lx", sym.st_value);
 
         // size
-        printf(" Size: 0x%.8lu", sym.st_size);
+        printf(" Size: 0x%.8lx", sym.st_size);
 
         // type
         switch (sym.st_info) {

@@ -27,6 +27,8 @@ int main(int argc, char **argv) {
     int fd, ii, count;
     long unsigned int iterator_print = 0;
 
+    size_t shstrndx;
+
     if (argc == 1) {
         printf("Please input the elf file path in args!\n");
         return 1;
@@ -42,6 +44,11 @@ int main(int argc, char **argv) {
 
     while ((scn = elf_nextscn(elf, scn)) != NULL) {
         gelf_getshdr(scn, &shdr);
+
+        elf_getshdrstrndx(elf,&shstrndx);
+        char* name = elf_strptr(elf, shstrndx, shdr.sh_name);
+        printf("%s \n",name);
+        
         if (shdr.sh_type == SHT_SYMTAB) {
             /* found a symbol table, go print it. */
             break;

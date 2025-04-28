@@ -61,15 +61,10 @@ void main(int argc, char **argv) {
         errx(EXIT_FAILURE, "\"%s\" is not an ELF object.", argv[1]);
     }
     
-    // Retrieve the index of the section name string table
-    elf_getshdrstrndx(elf, &shstrndx);
-
     // Iterate through the sections
     while ((scn = elf_nextscn(elf, scn)) != NULL) {
         // Retrieve the section header
         gelf_getshdr(scn, &shdr);
-        name = elf_strptr(elf, shstrndx, shdr.sh_name);
-        //printf("%s \n",name);
         
         // If section header type is symtab -> get _start address
         if (shdr.sh_type == SHT_SYMTAB) {
@@ -77,26 +72,37 @@ void main(int argc, char **argv) {
             int count = shdr.sh_size / shdr.sh_entsize;
             for(int i=0; i< count; i++){
                 gelf_getsym(data, i, &sym);
-                if(strcmp(elf_strptr(elf, shdr.sh_link, sym.st_name),"_start")){
-                    continue;
+                if(strcmp(elf_strptr(elf, shdr.sh_link, sym.st_name),"_start") == 0){
+                    Elf64_Addr start_addr = sym.st_value;
+                    printf("_start value: 0x%.8lx \n", start_addr);
+                    break;
                 }
-                Elf64_Addr start_addr = sym.st_value;
-                printf("_start value: 0x%.8lx \n", start_addr);
-                break;
             }
             break;
         }
-        
+    }
+
+    // Reset scn
+    scn = NULL;
+    
+    // Retrieve the index of the section name string table
+    elf_getshdrstrndx(elf, &shstrndx);
+    
+    // Iterate through again 
+    while ((scn = elf_nextscn(elf, scn)) != NULL) {
+        // Retrieve the section header
+        gelf_getshdr(scn, &shdr);
+
         // Get the name of the section
+        name = elf_strptr(elf, shstrndx, shdr.sh_name);
+        printf("%s \n",name);
         
         // Check if the section is .text
         if (strcmp(name, ".text") == 0) {
             printf("found .text section\n");
-            //break;
+            break;
         }
-        
     }
-
     // Elf descriptor in .text section
     
     // Close the file descriptor of output file

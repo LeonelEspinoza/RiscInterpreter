@@ -63,39 +63,57 @@ void main(int argc, char **argv) {
     
     // Iterate through the sections
     while ((scn = elf_nextscn(elf, scn)) != NULL) {
+        
         // Retrieve the section header
         gelf_getshdr(scn, &shdr);
         
         // If section header type is symtab -> get _start address
         if (shdr.sh_type == SHT_SYMTAB) {
+            
+            // Get data inside symbol section
             data = elf_getdata(scn, NULL);
+
+            // Size of section / entry size of section = N entries in section
             int count = shdr.sh_size / shdr.sh_entsize;
+            
             for(int i=0; i< count; i++){
+        
+                // Get symbol
                 gelf_getsym(data, i, &sym);
+            
+                // search for _start symbol
                 if(strcmp(elf_strptr(elf, shdr.sh_link, sym.st_name),"_start") == 0){
+            
+                    // Save start address for later
                     Elf64_Addr start_addr = sym.st_value;
                     printf("_start value: 0x%.8lx \n", start_addr);
+            
+                    //break for loop
                     break;
                 }
             }
+        
+            // Break while loop
             break;
         }
     }
 
     // Reset scn
     scn = NULL;
+    data=NULL;
     
     // Retrieve the index of the section name string table
     elf_getshdrstrndx(elf, &shstrndx);
     
     // Iterate through again 
     while ((scn = elf_nextscn(elf, scn)) != NULL) {
+        
         // Retrieve the section header
         gelf_getshdr(scn, &shdr);
 
         // Get the name of the section
         name = elf_strptr(elf, shstrndx, shdr.sh_name);
-        printf("%s \n",name);
+        //printf("%s \n",name);
         
         // Check if the section is .text
         if (strcmp(name, ".text") == 0) {
@@ -104,23 +122,27 @@ void main(int argc, char **argv) {
         }
     }
     // Elf descriptor in .text section
+
+    // Open the binary output file
+    fd_out = open("prog6_out", O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
     
+    // Read the section and write it to the file
+    while ((data = elf_getdata(scn, data)) != NULL) {
+        write(fd_out, data->d_buf, data->d_size);
+    }
     // Close the file descriptor of output file
     close(fd_out);
-
+    
     // Release the ELF descriptor
     elf_end(elf);
-
+    
     // Close main
     close(fd_in);   
 }   
 /*
-// Open the binary output file
-fd_out = open("out_libelf", O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR); //no sé porque me alega sobre S_IRUSR y S_IWUSR pero al compilar y ejecutar funciona bien
-
-// Read the section and write it to the file
-while ((data = elf_getdata(scn, data)) != NULL) {
-    write(fd_out, data->d_buf, data->d_size);
+while((data = elf_getdata(scn, data)) != NULL){
+    printf(data->d_buf);
+    printf("d_size: %lu \n", data->d_size);
 }
 
 */

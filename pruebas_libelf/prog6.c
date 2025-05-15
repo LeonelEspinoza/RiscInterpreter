@@ -25,6 +25,8 @@ void main(int argc, char **argv) {
     GElf_Shdr shdr;
     GElf_Sym sym;
     
+    Elf64_Addr start_addr;
+
     // (char*) section header name 
     char *name = NULL;
     
@@ -61,6 +63,7 @@ void main(int argc, char **argv) {
         errx(EXIT_FAILURE, "\"%s\" is not an ELF object.", argv[1]);
     }
     
+
     // Iterate through the sections
     while ((scn = elf_nextscn(elf, scn)) != NULL) {
         
@@ -85,8 +88,8 @@ void main(int argc, char **argv) {
                 if(strcmp(elf_strptr(elf, shdr.sh_link, sym.st_name),"_start") == 0){
             
                     // Save start address for later
-                    Elf64_Addr start_addr = sym.st_value;
-                    printf("_start value: 0x%.8lx \n", start_addr);
+                    start_addr = sym.st_value;
+                    printf("_start value: 0x%lx \n", start_addr);
             
                     //break for loop
                     break;
@@ -133,16 +136,19 @@ void main(int argc, char **argv) {
     // Close the file descriptor of output file
     close(fd_out);
     
+    int fd_bin = open("prog6_out", O_RDONLY, S_IRUSR);
+    lseek(fd_bin,(unsigned int) start_addr, SEEK_SET);
+    unsigned char buf[2];
+    for(int i=0; i<8; i++){
+        read(fd_bin, buf, 2);
+        printf("0x%02x%02x ", buf[1], buf[0]);
+    }
+    printf("\n");
+    close(fd_bin);
+    
     // Release the ELF descriptor
     elf_end(elf);
     
     // Close main
     close(fd_in);   
-}   
-/*
-while((data = elf_getdata(scn, data)) != NULL){
-    printf(data->d_buf);
-    printf("d_size: %lu \n", data->d_size);
 }
-
-*/

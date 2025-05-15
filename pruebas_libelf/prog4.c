@@ -16,7 +16,7 @@ int main(){
     // file pointer
     FILE * fptr;
     //open binary file with read binary
-    fptr = fopen("out_libelf","rb");
+    fptr = fopen("prog6_out","rb");
     //Buffer to for reading
     unsigned char buf[32];
 

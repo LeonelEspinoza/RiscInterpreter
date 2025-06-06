@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "pag2.c"
 
 /*
 prog6.c
@@ -25,8 +26,9 @@ void main(int argc, char **argv) {
     GElf_Shdr shdr;
     GElf_Sym sym;
     
-    Elf64_Addr start_addr;
+    //Elf64_Addr start_addr;
 
+    Elf32_Addr start_addr;
     // (char*) section header name 
     char *name = NULL;
     
@@ -126,6 +128,7 @@ void main(int argc, char **argv) {
     }
     // Elf descriptor in .text section
 
+    
     // Open the binary output file
     fd_out = open("prog6_out", O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
     
@@ -133,6 +136,7 @@ void main(int argc, char **argv) {
     while ((data = elf_getdata(scn, data)) != NULL) {
         write(fd_out, data->d_buf, data->d_size);
     }
+
     // Close the file descriptor of output file
     close(fd_out);
     

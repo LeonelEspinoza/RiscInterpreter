@@ -9,6 +9,9 @@
 #include <fcntl.h>
 #include "pag2.c"
 
+#define TRUE 1
+#define FALSE 0
+
 #define LUI     0b0110111 //0x37
 #define AUIPC   0b0010111 //0x17
 #define JAL     0b1101111 //0x6f
@@ -133,14 +136,75 @@ int main(int argc, char *argv[]){
     if (gelf_getehdr(elf, &ehdr) == NULL){
         errx(EXIT_FAILURE, "gelf_getehdr() failed: %s", elf_errmsg(-1));
     }
-
+    
     // Memory pagination structure
     struct block_entry *block_table;
-
+    
     // Initialize block table
     block_table = init_block_table();
 
     printf("End Initialize\n");
+    
+    // ------------------------------------------------
+    // Get _start address
+    // ------------------------------------------------
+    
+    printf("Getting _start address\n");
+    
+    // Elf Scene pointer
+    Elf_Scn *scn = NULL;
+    
+    // GElf section header
+    GElf_Shdr shdr;
+    
+    // Elf data pointer
+    Elf_Data *data = NULL;
+    
+    // GElf symbol
+    GElf_Sym sym;
+    
+    // Elf uint32_t _start address
+    Elf32_Addr _start_addr;
+    
+    // while scene isn't Null
+    while ((scn = elf_nextscn(elf, scn)) != NULL) {
+        
+        // Retrieve the section header
+        gelf_getshdr(scn, &shdr);
+        
+        // If section header type is symtab -> search for _start address
+        if (shdr.sh_type == SHT_SYMTAB) {
+            
+            // Get data inside symbol section
+            data = elf_getdata(scn, NULL);
+
+            // Size of section / entry size of section = N entries in section
+            int count = shdr.sh_size / shdr.sh_entsize;
+            
+            // for every entry in section
+            for(int i=0; i < count; i++){
+        
+                // Get symbol
+                gelf_getsym(data, i, &sym);
+            
+                // search for _start symbol
+                if(strcmp(elf_strptr(elf, shdr.sh_link, sym.st_name),"_start") == 0){
+            
+                    // Save start address for later
+                    _start_addr = sym.st_value;
+                    printf("_start address: 0x%lx \n", _start_addr);
+            
+                    //break for loop
+                    break;
+                }
+            }
+        
+            // Break while loop
+            break;
+        }
+    }
+
+    printf("Saved _start address\n");
 
     // ------------------------------------------------
     // Load program headers to memory in block_table
@@ -224,11 +288,13 @@ int main(int argc, char *argv[]){
         if(items<1){
             errx(EXIT_FAILURE, "ERROR: Segment %d is incomplete\n", i);
         }
-
+        
+        /*
         printf("\nContents in phdr #%u:\n",i);
         for(size_t j=0;j<memsz;j++){
             printf("%02x ",((uint8_t *)buf)[j]);
         }
+        */
     
         // Write buffer with data in block_table 
         if(write_in_bulk(block_table, vaddr, buf, memsz) < memsz){
@@ -266,17 +332,26 @@ int main(int argc, char *argv[]){
 
     //Pseudo memory is block table
     
-    // Get _start instruction
-    uint32_t _start_addr = get_start_addr();
-    
     // Program Counter - Instruction Index
     uint32_t pc = _start_addr;
     
     // Instruction
     uint32_t inst;
-    while(1){
+
+    uint8_t input;
+    while(TRUE){
+
+        printf("Input: break(0) step(1) = ");
+        scanf("%u", &input);
+        if(input == 0){
+            break;
+        }
         // If program counter out of limits break
-        // {something is missing here}
+        /*
+        if(pc>=max_pc){
+            errx(EXIT_FAILURE, "ERROR: program counter value (pc: %x) out of limits (max_pc: %x)", pc, max_pc);
+        }
+        */
 
         // Get instruction to interpret
         read_from_bulk(block_table, pc, &inst, sizeof(uint32_t));
@@ -307,6 +382,8 @@ int main(int argc, char *argv[]){
 
         //auxiliar unsigned immediate
         uint32_t uimm;
+
+
 
         switch (opcode) {
 
@@ -830,10 +907,12 @@ int main(int argc, char *argv[]){
         }
 
         //if program counter (pc) is out of range
+        /*
         if(pc>=max_pc){
             errx(EXIT_FAILURE, "ERROR: Program counter value (pc = %u) out of range (max_pc = %d)", pc, max_pc);
             return 1;
         }
+        */
     }
 
     printf("finish\n");

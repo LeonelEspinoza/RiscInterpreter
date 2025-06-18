@@ -64,3 +64,6 @@ pruebas_libelf/prog6.gcc
 pruebas_libelf/prog6_out_hex.txt
 pruebas_libelf/prog5.gcc
 pruebas_libelf/pag.c
+pruebas_libelf/fact10_interpreter_out.txt
+pruebas_libelf/elf_interpreter.gcc
+pruebas_libelf/elf_interpreter.gcc

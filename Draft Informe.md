@@ -1,4 +1,4 @@
-# Cap1: Introducción
+# Cap 1: Introducción
 ¿Qué? ¿Por qué? Define lo que el lector puede esperar y justifica la existencia.
 Contexto, Justificación, objetivos, alcances, método, estructura
 Temas importantes a la memoria:
@@ -11,7 +11,7 @@ Temas importantes a la memoria:
 + Uso de depuradores inversos
 + Depuradores inversos existentes
  
-En cursos de Arquitectura de Computadores y Sistemas Operativos, parte del curriculum de estos es trabajar con un ISA, instruction set architecture, para entender a bajo nivel el funcionamiento de máquinas y PCs. En párticular se utiliza la arquitectura Risc-V, una ISA de código abierta enfocada en un set de instrucciones reducido y eficiente, ideal para propósitos didacticos, por lo que se utiliza dentro de ramos de arquitectura de computadores y sistemas operativos. Trabajar con esta arquitectura de bajo nivel es un reto en algunos casos, pues no es familiar y se diferencia con otros lenguajes de programación en que no está pensada para la comodidad del desarrollador que lo utiliza, por tanto el tener una herramienta que facilite el desarrollo de código y permita entender la ejecución de el mismo sería de gran utilidad pera les estudiantes, apoyando su aprendizaje y solventando algunos problemas. Un depurador es una herramienta para desarrolladores que permite entender la ejecución de un código y encontrar errores dentro de un ambiente seguro. 
+En cursos de Arquitectura de Computadores y Sistemas Operativos, parte del curriculum de estos es trabajar con un ISA, instruction set architecture, para entender a bajo nivel el funcionamiento de máquinas y PCs. En particular se utiliza la arquitectura Risc-V, una ISA de código abierta enfocada en un set de instrucciones reducido y eficiente, ideal para propósitos didácticos, por lo que se utiliza dentro de ramos de arquitectura de computadores y sistemas operativos. Trabajar con esta arquitectura de bajo nivel es un reto en algunos casos, pues no es familiar y se diferencia con otros lenguajes de programación en que no está pensada para la comodidad del desarrollador que lo utiliza, por tanto el tener una herramienta que facilite el desarrollo de código y permita entender la ejecución de el mismo sería de gran utilidad pera les estudiantes, apoyando su aprendizaje y solventando algunos problemas. Un depurador es una herramienta para desarrolladores que permite entender la ejecución de un código y encontrar errores dentro de un ambiente seguro. 
 ## Problema a Solucionar
 % Qué problemática se busca solucionar con el trabajo realizado
 ## Soluciones Existentes

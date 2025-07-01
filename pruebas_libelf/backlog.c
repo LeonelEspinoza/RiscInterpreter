@@ -3,20 +3,36 @@
 #include <stdio.h>
 #include <err.h>
 
-#define BACKLOG_SIZE 101
+#include "pag2.c"
+#include "auxiliar.c"
 
+#define BACKLOG_SIZE 101
+/* Structure back_step
+@param inst_addr    instruction address
+@param mod_val1     modified value 1
+@param mod_val2     modified value 2
+*/
 typedef struct back_step{
     uint32_t inst_addr;
     uint32_t mod_val_1;
     uint32_t mod_val_2;
 }back_step;
 
+
+/*Structure backlog
+@param steps        back_step circular array
+@param bot          pointer to botom back_step
+@param top          pointer to top back_step
+*/
 typedef struct backlog{
     back_step* steps;
     uint32_t bot;
     uint32_t top;
 }backlog;
 
+/* Initialize backlog array and pointers
+@param b            pointer to backlog
+*/
 void init_backlog(backlog *b){
     b->steps = (back_step *) malloc(BACKLOG_SIZE * sizeof(back_step));
     b->top = 0;
@@ -24,11 +40,20 @@ void init_backlog(backlog *b){
     return;
 }
 
+/* Cleanup backlog malloc array
+@param b            pointer to backlog
+*/
 void free_backlog(backlog *b){
     free(b->steps);
     return;
 }
 
+/* Saves new back_step in backlog
+@param b            pointer to backlog
+@param inst         instruction executed
+@param mod_val_1    modified value 1
+@param mod_val_2    modified value 2
+*/
 void add_step(backlog *b,uint32_t inst,uint32_t mod_val_1,uint32_t mod_val_2){
     back_step bs;
     bs.inst_addr = inst;
@@ -45,6 +70,10 @@ void add_step(backlog *b,uint32_t inst,uint32_t mod_val_1,uint32_t mod_val_2){
     return;
 }
 
+/* Gets top back_step in backlog
+@param b            pointer to backlog
+@return back_step 
+*/
 back_step go_back(backlog *b){
     uint32_t top = b->top;
     uint32_t bot = b->bot;
@@ -55,6 +84,20 @@ back_step go_back(backlog *b){
     b->top = top==0? BACKLOG_SIZE-1 : top - 1;
     return ret;
 }
+
+/* Reset modified values back
+@param b            pointer to backlog
+@param bt           pointer to block_table (memory structure)
+void exe_go_back(backlog *b, block_entry * bt){
+    back_step bs = go_back(b);
+    uint32_t back_add = bs.inst_addr;
+    uint32_t inst;
+    read_from_bulk(bt, back_add, &inst, sizeof(inst));
+    uint32_t mod_val1 = bs.mod_val_1;
+    uint32_t mod_val2 = bs.mod_val_2;
+    return;   
+}
+*/
 
 void main(){
     uint32_t inst[200],mod[200],mod2[200];

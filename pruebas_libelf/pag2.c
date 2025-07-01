@@ -16,18 +16,18 @@
 @param mem_init     Boolean to check if memory was initialized
 @param mem          pointer to malloc array of size BLOCK_SIZE
 */
-struct block_entry{ 
+typedef struct block_entry{ 
     int     no;         // Block's Number
     int     start_addr; // Block's start addr
     char    mem_init;   // Boolean to check if memory is initialized
     uint8_t*   mem;        // Block's memory pointer
-};
+}block_entry;
 
 /* Initialize the memory of a block entry if not initialized.
 @param be pointer to block_entry structure
 @return 0 if succesful
 */
-int init_block_entry_memory(struct block_entry *be){
+int init_block_entry_memory(block_entry *be){
     if(be->mem_init==0){
         be->mem = (uint8_t *) malloc(BLOCK_SIZE);
         be->mem_init = 1;
@@ -39,7 +39,7 @@ int init_block_entry_memory(struct block_entry *be){
 @param be pointer to block_entry structure
 @return 0 if succesful
 */
-int clean_block_entry_memory(struct block_entry *be){
+int clean_block_entry_memory(block_entry *be){
     if(be->mem_init==1){
         free(be->mem);
         be->mem_init=0;
@@ -51,8 +51,8 @@ int clean_block_entry_memory(struct block_entry *be){
 /* Initializes block_table
 @return pointer to memory allocated containing the block_table
 */
-struct block_entry *init_block_table(){
-    struct block_entry *bt = (struct block_entry *) malloc( sizeof(struct block_entry) * BLOCK_TABLE_SIZE );
+block_entry *init_block_table(){
+    block_entry *bt = (block_entry *) malloc( sizeof(block_entry) * BLOCK_TABLE_SIZE );
     for(int i=0;i<BLOCK_TABLE_SIZE;i++){
         bt[i].no = i;
         bt[i].start_addr = i*BLOCK_SIZE;
@@ -64,7 +64,7 @@ struct block_entry *init_block_table(){
 /* Cleanup allocated memory in block_table
 @return 0 if succesful
 */
-int clean_block_table(struct block_entry* be){
+int clean_block_table(block_entry* be){
     for(int i=0;i<BLOCK_TABLE_SIZE;i++){
         /*
         if(be[i].mem_init){
@@ -81,7 +81,7 @@ int clean_block_table(struct block_entry* be){
 @param c character to be written
 @return 0 if succesful
 */
-int write_in(struct block_entry *bt, uint32_t logical_addr, uint8_t c){
+int write_in(block_entry *bt, uint32_t logical_addr, uint8_t c){
     
     uint32_t block_no = logical_addr >> 21;
     uint32_t offset   = logical_addr & 0b111111111111111111111;
@@ -109,7 +109,7 @@ int write_in(struct block_entry *bt, uint32_t logical_addr, uint8_t c){
 @param logical_addr logical address to read
 @return uint8_t (1 byte) in logical address
 */
-uint8_t read_from(struct block_entry *bt, uint32_t logical_addr){
+uint8_t read_from(block_entry *bt, uint32_t logical_addr){
 
     uint32_t block_no = logical_addr >> 21;
     uint32_t offset   = logical_addr & 0b111111111111111111111;
@@ -137,7 +137,7 @@ uint8_t read_from(struct block_entry *bt, uint32_t logical_addr){
 @param logical_addr logical address to point
 @return pointer to logical_addr
 */
-uint8_t *ptr_to(struct block_entry *bt, uint32_t logical_addr){
+uint8_t *ptr_to(block_entry *bt, uint32_t logical_addr){
        
     uint32_t block_no = logical_addr >> 21;
     uint32_t offset   = logical_addr & 0b111111111111111111111;
@@ -168,7 +168,7 @@ uint8_t *ptr_to(struct block_entry *bt, uint32_t logical_addr){
 @param content_size total size of content to be written in bytes
 @return bytes written
 */
-size_t write_in_bulk(struct block_entry *bt, uint32_t start_logical_addr, void *buf, size_t content_size){
+size_t write_in_bulk(block_entry *bt, uint32_t start_logical_addr, void *buf, size_t content_size){
     
     uint32_t logical_addr = start_logical_addr;
 
@@ -189,7 +189,7 @@ size_t write_in_bulk(struct block_entry *bt, uint32_t start_logical_addr, void *
 @param content_size total size of content to be read in bytes
 @return bytes written
 */
-size_t read_from_bulk(struct block_entry *bt, uint32_t start_logical_addr, void *buf, size_t content_size){    
+size_t read_from_bulk(block_entry *bt, uint32_t start_logical_addr, void *buf, size_t content_size){    
     uint32_t logical_addr = start_logical_addr;
     
     for( size_t i = 0; i < content_size; i++, logical_addr++){

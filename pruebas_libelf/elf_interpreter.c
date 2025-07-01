@@ -7,7 +7,9 @@
 #include <libelf.h>
 #include <gelf.h>
 #include <fcntl.h>
+
 #include "pag2.c"
+#include "auxiliar.c"
 
 #define FALSE 0
 #define TRUE !0
@@ -84,13 +86,13 @@
 @param reg_ar   register array
 @param reg      register to write in
 @param val      value to save in register
-*/
 void inline assign_reg_val(int32_t* reg_ar, int8_t reg, int32_t val){
     if(reg){
         reg_ar[reg]=val;
     }
     return;
 }
+*/
 
 int main(int argc, char *argv[]){
     
@@ -147,7 +149,7 @@ int main(int argc, char *argv[]){
     }
     
     // Memory pagination structure
-    struct block_entry *block_table;
+    block_entry *block_table;
     
     // Initialize block table
     block_table = init_block_table();

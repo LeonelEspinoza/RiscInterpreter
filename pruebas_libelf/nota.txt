@@ -1,0 +1,136 @@
+x0  =          0; x1  =      84068;
+x2  =       -976; x3  =     153616;
+x4  =          0; x5  =          0;
+x6  =          0; x7  =          0;
+x8  =          0; x9  =         16;
+x10 =          0; x11 =          0;
+x12 =          0; x13 =          0;
+x14 =         26; x15 =          0;
+x16 =          0; x17 =        144;
+x18 =          0; x19 =         20;
+x20 =         20; x21 =          0;
+x22 =         32; x23 =          0;
+x24 =          0; x25 =      98452;
+x26 =          0; x27 =        284;
+x28 =          0; x29 =          0;
+x30 =         56; x31 =         -1;
+
+x13 = 0 + 4
+x15 = 0
+x10 = 0 + 26
+x16 = -32768
+pc += 28
+x14 = M[x13] & 0b1111111111111111
+x12 = x14 & 1
+if(x12 == 0)
+    { pc += 1032}
+pc += -980
+x13 = x10 + 24
+x14 = 0
+x10 = x10 + 2
+pc += 28
+x15 = M[x13]
+x12 = x15 << 16
+x12 = x12 >>a 16
+x15 = x15 << 1
+if(x12 >= 0)
+    { pc += 1032}
+x18 = -16
+x14 = -15
+x18 = x18 - x9
+x15 = 0
+if(x9 < x9)
+    { pc += 1180}
+x18 = x18 + x15
+x15 = 7
+if(x15 < x18)
+    { pc += 1108}
+if(x18 == 0)
+    { pc += 1056}
+x15 = M[x8 + 24]
+x18 = x18 - 1
+x10 = x8
+x15 = x15 + 1
+x19 = x15 | x19
+pc += -1248
+
+x0  =          0; x1  =      84068;
+x2  =       -976; x3  =     153616;
+x4  =          0; x5  =          0;
+x6  =          0; x7  =          0;
+x8  =          0; x9  =         16;
+x10 =         26; x11 =          0;
+x12 =          0; x13 =          4;
+x14 =         26; x15 =          0;
+x16 =     -32768; x17 =        144;
+x18 =          0; x19 =         20;
+x20 =         20; x21 =          0;
+x22 =         32; x23 =          0;
+x24 =          0; x25 =      98452;
+x26 =          0; x27 =        284;
+x28 =          0; x29 =          0;
+x30 =         56; x31 =         -1;
+
+_______________________________________________________________
+Begin Initialize
+file_name: stack.qemu-O
+
+Getting _start address
+_start address: 0x0001008c 
+
+Begin loader to memory
+min vaddr: 65536
+max vaddr: 66892
+
+Begin interpreter
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+N 
+AUIPC imm: 8192 rd: 3
+ADDI imm: -812 rs1: 3 rd: 3
+ADDI imm: -972 rs1: 3 rd: 10
+ADDI imm: -944 rs1: 3 rd: 12
+SUB rs1: 12 rs2: 10 rd: 12
+ADDI imm: 0 rs1: 0 rd: 11
+JAL offset: 364 rd: 1
+ADDI imm: 15 rs1: 0 rd: 6
+ADDI imm: 0 rs1: 10 rd: 14
+BGEU imm: 1084 rs1: 6 rs2: 12
+ANDI imm: 15 rs1: 14 rd: 15
+BNE imm: 1184 rs1: 15 rs2: 0
+elf_interpreter.gcc: ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66892, instruction addr: 67264)
+
+_______________________________________________________________
+AUIPC imm: 8192 rd: 3
+ADDI imm: -820 rs1: 3 rd: 3
+ADDI imm: -972 rs1: 3 rd: 10
+ADDI imm: -944 rs1: 3 rd: 12
+SUB rs1: 12 rs2: 10 rd: 12
+ADDI imm: 0 rs1: 0 rd: 11
+JAL offset: 360 rd: 1
+ADDI imm: 15 rs1: 0 rd: 6
+ADDI imm: 0 rs1: 10 rd: 14
+BGEU imm: 1084 rs1: 6 rs2: 12
+ANDI imm: 15 rs1: 14 rd: 15
+BNE imm: 1184 rs1: 15 rs2: 0
+
+
+pc  =   65676
+x3  =   pc  + 8192
+x3  =   x3  - 820 
+x10 =   x3  - 972
+x12 =   x3  - 944
+x12 =   x12 - x10
+x11 =   0
+x1  =   pc  + 4
+pc  =   pc  + 360
+x6  =   15
+x14 =   x10
+
+if(x6 >= x12){
+    pc += 1084}
+
+x15 =   x14 & 0b1111
+
+if(x15 != 0){
+    pc += 1184}
+

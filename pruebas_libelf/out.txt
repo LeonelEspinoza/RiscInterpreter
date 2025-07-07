@@ -1,0 +1,50 @@
+Begin Initialize
+file_name: stack.qemu-O
+
+Getting _start address
+_start address: 0x0001008c 
+
+Begin loader to memory
+min vaddr: 65536
+max vaddr: 66892
+
+Begin interpreter
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+N 
+AUIPC imm: 8192 rd: 3
+ADDI imm: -812 rs1: 3 rd: 3
+ADDI imm: -972 rs1: 3 rd: 10
+ADDI imm: -944 rs1: 3 rd: 12
+SUB rs1: 12 rs2: 10 rd: 12
+ADDI imm: 0 rs1: 0 rd: 11
+JAL offset: 364 rd: 1
+ADDI imm: 15 rs1: 0 rd: 6
+ADDI imm: 0 rs1: 10 rd: 14
+BGEU imm: 1084 rs1: 6 rs2: 12
+ANDI imm: 15 rs1: 14 rd: 15
+BNE imm: 1184 rs1: 15 rs2: 0
+elf_interpreter.gcc: ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66892, instruction addr: 67264)
+
+_______________________________________________________________
+Para que sea más legible la ejecución es como:
+
+pc  =   65676
+x3  =   pc  + 8192
+x3  =   x3  - 812 
+x10 =   x3  - 972
+x12 =   x3  - 944
+x12 =   x12 - x10
+x11 =   0
+x1  =   pc  + 4
+pc  =   pc  + 364
+x6  =   15
+x14 =   x10
+
+if(x6 >= x12){
+    pc += 1084}
+
+x15 =   x14 & 0b1111
+
+if(x15 != 0){
+    pc += 1184}
+Error

@@ -8,7 +8,7 @@
 #include <gelf.h>
 #include <fcntl.h>
 
-#include "pag2.c"
+//#include "pag2.c"
 #include "auxiliar.c"
 
 #define FALSE 0
@@ -345,6 +345,14 @@ int main(int argc, char *argv[]){
     // Instruction
     uint32_t inst;
 
+    //instruction values structure
+    //inst_val inst_v;
+
+    //backlog structure
+    backlog back_log;
+    init_backlog(&back_log);
+    uint32_t mod_val;
+
     // input
     char input;
 
@@ -356,14 +364,14 @@ int main(int argc, char *argv[]){
     while(TRUE){
         // Ask for user input
         if(stop){
-            printf("Input: break(0) next-step(1)  next-breakpoint(2) View-Registers-Values(3) Toggle-instruction-details(4)\n");
+            printf("Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) \n");
             scanf(" %1c", &input);
             // End execution
-            if(input == '0'){
+            if(input == 'B'){
                 break;
             }
             // Print register values in table (2x16)
-            if(input == '3'){
+            if(input == 'v'){
                 for(int i =0; i<32; i+=2){
                     printf("x[%2u] = %10d; x[%2u] = %10d;\n", i, x[i], i+1, x[i+1]);
                 }
@@ -371,16 +379,20 @@ int main(int argc, char *argv[]){
                 continue;
             }
             // Toggle to print instruction details (program counter)
-            if(input == '4'){
+            if(input == 'd'){
                 details= !details;
                 continue;
             }
+            if(input == 'b'){
+                next_pc = exe_go_back(&back_log, block_table, x);
+                continue;
+            }
             // Toggle stop flag and wait till next stop
-            if(input == '2'){
+            if(input == 'N'){
                 stop=FALSE;
             }else{ 
                 // Check valid input
-                if(input != '1'){
+                if(input != 'n'){
                     printf("ERROR: Input not recognized. Enter a valid input.\n");
                     continue;
                 }
@@ -388,12 +400,13 @@ int main(int argc, char *argv[]){
         }else{
             // Wait for x instructions and toggle stop bool
             i++;
-            if(i>=1){
+            if(i>=99){
                 i=0;
                 stop=TRUE;
             }
         }
 
+        mod_val = 0;
         // Update program counter
         pc = next_pc;
 
@@ -403,6 +416,11 @@ int main(int argc, char *argv[]){
         // Prepare possible next instruccion address
         next_pc = pc + 4;
         
+        /*
+        //set instruction values
+        inst_v = set_inst_val(inst, pc);
+        */
+
         // Get operation code in instruction
         uint8_t opcode = inst       & 0b1111111;
         
@@ -428,8 +446,8 @@ int main(int argc, char *argv[]){
         if(details){
             //print instruction details
             printf("pc: %u\n", pc);
-            //printf("inst: 0x%x\n", inst);
-            //printf("opcode: 0x%x\n", opcode);
+            printf("inst: 0x%x\n", inst);
+            printf("opcode: 0x%x\n", opcode);
             //printf("rd: %d\n", rd);
             //printf("func3: 0x%x\n", func3);
             //printf("rs1: %d\n", rs1);
@@ -443,9 +461,7 @@ int main(int argc, char *argv[]){
                 //imm[31:12] , rd , opcode
                 imm = (inst & 0b11111111111111111111000000000000);
                 printf("LUI imm: %d rd: %u\n", imm, rd);
-
-                //x[rd] = imm;
-                assign_reg_val(x,rd,imm);
+                mod_val = assign_reg_val(x,rd,imm);
                 //printf("x[%u] = %d\n", rd, imm);
                 break;
 
@@ -454,8 +470,7 @@ int main(int argc, char *argv[]){
                 //imm[31:12] , rd , opcode
                 imm = (inst & 0b11111111111111111111000000000000);
                 printf("AUIPC imm: %d rd: %u\n", imm, rd);
-                //x[rd] = pc + imm;
-                assign_reg_val(x,rd,pc+imm);
+                mod_val = assign_reg_val(x,rd,pc+imm);
                 //printf("x[%u] = %d\n",rd, x[rd]);
                 break;
 
@@ -465,22 +480,15 @@ int main(int argc, char *argv[]){
 
                 //inst [31|30:21|20|19:12] 
                 //imm_ [20|10:01|11|19:12]
-                /*
-                20
-                0  0000000010 0 00000000
-                offset 000000000000000000100
-                rd 01010 
-                opcode 1101111
-                */
                 imm = (inst & MASK_19_12) | ((inst & MASK_20) >> 9) | ((inst & MASK_30_21) >> 20) | ((inst & MASK_31) >> 11);
 
                 //sign extend
                 if(imm & 0b100000000000000000000){
                     imm = imm | 0b11111111111100000000000000000000; 
                 }
+
                 printf("JAL offset: %d rd: %u\n", imm, rd);
-                //x[rd] = next_pc;
-                assign_reg_val(x,rd,next_pc);
+                mod_val = assign_reg_val(x,rd,next_pc);
                 next_pc = pc + imm;
                 break;
 
@@ -494,8 +502,7 @@ int main(int argc, char *argv[]){
                     imm = imm | 0b11111111111111111111100000000000;
                 }
                 printf("JALR offset: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                //x[rd] = next_pc;
-                assign_reg_val(x,rd,next_pc);
+                mod_val = assign_reg_val(x,rd,next_pc);
                 next_pc = (x[rs1] + imm) & (~1);
                 break;
 
@@ -585,53 +592,62 @@ int main(int argc, char *argv[]){
                     //Load Byte
                     case FUNC3_LB:
                         printf("LB imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        read_from_bulk(block_table, (x[rs1] + imm), &mem, sizeof(mem));
+                        int8_t lb_mem;
+                        read_from_bulk(block_table, (x[rs1] + imm), &lb_mem, sizeof(lb_mem));
+                        
+                        mem = lb_mem;
+                        /*
                         mem = mem & 0b11111111;
-                        //mem = M[x[rs1] + imm] & 0b11111111;
+                        //sign extender
                         if(mem & 0b10000000){
                             mem = mem | 0b11111111111111111111111110000000;
                         }
-                        //x[rd] = mem;
-                        assign_reg_val(x,rd,mem);                        
+                        */
+                        mod_val = assign_reg_val(x,rd,mem);
                         //printf("x[rd=%u] = %d\n",rd,x[rd]);
                         break;
 
                     //Load Halfword
                     case FUNC3_LH:
                         printf("LH imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        read_from_bulk(block_table, (x[rs1] + imm), &mem, sizeof(mem));
+                        int16_t lh_mem;
+                        read_from_bulk(block_table, (x[rs1] + imm), &lh_mem, sizeof(lh_mem));
+                        mem = lh_mem;
+                        /*
                         mem = mem & 0b1111111111111111;
-                        //mem = M[x[rs1] + imm] & 0b1111111111111111;
                         if(mem & 0b1000000000000000){
                             mem = mem | 0b11111111111111111000000000000000;
                         }
-                        //x[rd] = mem;
-                        assign_reg_val(x,rd,mem);
+                        */
+                        mod_val = assign_reg_val(x,rd,mem);
                         //printf("x[rd=%u] = %d\n",rd,x[rd]);
                         break;
 
                     //Load Word
                     case FUNC3_LW:
                         printf("LW imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        read_from_bulk(block_table, (x[rs1] + imm), &(x[rd]), sizeof(x[rd]));
+
+                        read_from_bulk(block_table, (x[rs1] + imm), &mem, sizeof(mem));
+                        
+                        mod_val = assign_reg_val(x,rd,mem);
                         //printf("x[rd=%u] = %d\n",rd,x[rd]);
                         break;
 
                     //Load Byte Unsigned
                     case FUNC3_LBU:
                         printf("LBU imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        read_from_bulk(block_table, (x[rs1] + imm), &(x[rd]), sizeof(x[rd]));
-                        //x[rd] = x[rd] & 0b11111111;
-                        assign_reg_val(x,rd,x[rd] & 0b11111111);
+                        uint8_t lbu_mem;
+                        read_from_bulk(block_table, (x[rs1] + imm), &lbu_mem, sizeof(lbu_mem));
+                        mod_val = assign_reg_val(x,rd,(int32_t) lbu_mem);
                         //printf("x[rd]: %d\n",x[rd]);
                         break;
 
                     //Load Halfword Unsigned
                     case FUNC3_LHU:
                         printf("LHU imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        read_from_bulk(block_table, (x[rs1] + imm), &(x[rd]), sizeof(x[rd]));
-                        //x[rd] = x[rd] & 0b1111111111111111;
-                        assign_reg_val(x,rd,x[rd] & 0b1111111111111111);
+                        uint16_t lhu_mem;
+                        read_from_bulk(block_table, (x[rs1] + imm), &lhu_mem, sizeof(lhu_mem));
+                        mod_val = assign_reg_val(x,rd,(int32_t) lhu_mem);
                         //printf("x[rd]: %d\n",x[rd]);
                         break;
                         
@@ -644,9 +660,8 @@ int main(int argc, char *argv[]){
             //Store
             case STORE:
                 //imm[11:5] , rs2 , rs1 , func3 , imm[4:0] , opcode
-                
                 //inst_ [31:25|11:07]
-                //imm [11:05|04:00]
+                //imm   [11:05|04:00]
                 imm = ((inst & MASK_31_25) >> 20) | ((inst & MASK_11_07) >> 7);
                 
                 //sign extender
@@ -658,9 +673,9 @@ int main(int argc, char *argv[]){
                     //Store Byte
                     case FUNC3_SB:
                         printf("SB imm: %d rs1: %u rs2: %u\n", imm, rs1, rs2);
-                        //x[rs2] = x[rs2] & 0b11111111;
-                        assign_reg_val(x,rs2,x[rs2] & 0b11111111);
-                        write_in_bulk(block_table, x[rs1] + imm, &(x[rs2]), sizeof(x[rs2]));
+                        int8_t sb_tmp = (x[rs2] & 0b11111111);
+                        read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(sb_tmp));
+                        write_in_bulk(block_table, (x[rs1] + imm), &(sb_tmp), sizeof(sb_tmp));
 
                         //printf("stored: %d\n", x[rs2]);
                         break;
@@ -668,17 +683,17 @@ int main(int argc, char *argv[]){
                     //Store Halfword
                     case FUNC3_SH:
                         printf("SH imm: %d rs1: %u rs2: %u\n", imm, rs1, rs2);
-                        //x[rs2] = x[rs2] & 0b111111111111111;
-                        assign_reg_val(x,rs2,x[rs2] & 0b111111111111111);
-                        write_in_bulk(block_table, (x[rs1] + imm), &(x[rs2]), sizeof(x[rs2]));
+                        int16_t sh_tmp = (x[rs2] & 0b1111111111111111);
+                        read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(sh_tmp));
+                        write_in_bulk(block_table, (x[rs1] + imm), &(sh_tmp), sizeof(sh_tmp));
                         //printf("stored: %d\n", x[rs2]);
                         break;
 
                     //Store Word
                     case FUNC3_SW:
                         printf("SW imm: %d rs1: %u rs2: %u\n", imm, rs1, rs2);
+                        read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(x[rs2]));
                         write_in_bulk(block_table, (x[rs1] + imm), &(x[rs2]), sizeof(x[rs2]));
-                        //M[x[rs1] + imm] = x[rs2];
                         //printf("stored: %d\n", x[rs2]);
                         break;
 
@@ -706,50 +721,43 @@ int main(int argc, char *argv[]){
                     //ADD Immediate
                     case FUNC3_ADDI:
                         printf("ADDI imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        //x[rd] = x[rs1] + imm;
-                        assign_reg_val(x,rd,x[rs1] + imm);
+                        mod_val = assign_reg_val(x,rd,x[rs1] + imm);
                         break;
 
                     //Set Less Than Immediate
                     case FUNC3_SLTI:
                         printf("SLTI imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        //x[rd] = x[rs1] < imm ? 0b1 : 0b0;
-                        assign_reg_val(x,rd,x[rs1] < imm ? 0b1 : 0b0);
+                        mod_val = assign_reg_val(x,rd,x[rs1] < imm ? 0b1 : 0b0);
                         break;
 
                     //Set Lower Than Immediate Unsigned
                     case FUNC3_SLTIU:
                         printf("SLTIU imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        //x[rd] = (uint32_t) x[rs1] < uimm ? 0b1 : 0b0;
-                        assign_reg_val(x,rd,(uint32_t) x[rs1] < uimm ? 0b1 : 0b0);
+                        mod_val = assign_reg_val(x,rd,(uint32_t) x[rs1] < uimm ? 0b1 : 0b0);
                         break;
 
                     //eXclusive OR Immediate
                     case FUNC3_XORI:
                         printf("XORI imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        //x[rd] = x[rs1] ^ imm;
-                        assign_reg_val(x,rd,x[rs1] ^ imm);
+                        mod_val = assign_reg_val(x,rd,x[rs1] ^ imm);
                         break;
 
                     //OR Immediate
                     case FUNC3_ORI :
                         printf("ORI imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        //x[rd] = x[rs1] | imm;
-                        assign_reg_val(x,rd,x[rs1] | imm);
+                        mod_val = assign_reg_val(x,rd,x[rs1] | imm);
                         break;
 
                     //AND Immediate
                     case FUNC3_ANDI:
                         printf("ANDI imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        //x[rd] = x[rs1] & imm;
-                        assign_reg_val(x,rd,x[rs1] & imm);
+                        mod_val = assign_reg_val(x,rd,x[rs1] & imm);
                         break;
                     
                     //Shift Logical Left Immediate
                     case FUNC3_SLLI:
                         printf("SLLI shamt: %u rs1: %u rd: %u\n", shamt, rs1, rd);
-                        //x[rd] = x[rs1] << shamt;
-                        assign_reg_val(x,rd,x[rs1] << shamt);
+                        mod_val = assign_reg_val(x,rd,x[rs1] << shamt);
                         break;
                     
                     //Shift Right L/A Immediate
@@ -758,13 +766,11 @@ int main(int argc, char *argv[]){
                         if (imm & 0b010000000000){
                             //Shift Right Arithmetic Immediate
                             printf("SRAI shamt: %u rs1: %u rd: %u\n", shamt, rs1, rd);
-                            //x[rd] = x[rs1] >> shamt;
-                            assign_reg_val(x,rd,((signed)x[rs1]) >> shamt);
+                            mod_val = assign_reg_val(x,rd,((signed) x[rs1]) >> shamt);
                         } else {
                             //Shift Right Logical Immediate
                             printf("SRLI shamt: %u rs1: %u rd: %u\n", shamt, rs1, rd);
-                            //x[rd] = (uint32_t) x[rs1] >> shamt;
-                            assign_reg_val(x,rd,((uint32_t) x[rs1]) >> shamt);
+                            mod_val = assign_reg_val(x,rd,((uint32_t) x[rs1]) >> shamt);
                         }
                         break;
 
@@ -787,61 +793,53 @@ int main(int argc, char *argv[]){
                         //MULtiplication 
                         case FUNC3_MUL:
                             printf("MUL rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = x[rs1] * x[rs2];
-                            assign_reg_val(x,rd,x[rs1] * x[rs2]);
+                            mod_val = assign_reg_val(x,rd,x[rs1] * x[rs2]);
                             break;
                         
                         //MULtiplication Half
                         case FUNC3_MULH:
                             printf("MULH rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             mul = (x[rs1] * x[rs2]);
-                            //x[rd] = mul >> 32;
-                            assign_reg_val(x,rd,mul >> 32);
+                            mod_val = assign_reg_val(x,rd,mul >> 32);
                             break;
                         
                         //MULtiplication Half Signed Unsigned
                         case FUNC3_MULHSU:
                             printf("MULHSU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             mul = ((int32_t) (x[rs1] * ((uint32_t) x[rs2])));
-                            //x[rd] = mul >> 32;
-                            assign_reg_val(x,rd,mul >> 32);
+                            mod_val = assign_reg_val(x,rd,mul >> 32);
                             break;
                         
                         //MULtiplication Half Unsigned
                         case FUNC3_MULHU:
                             printf("MULHU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
                             uint64_t u_mul = (((uint32_t) x[rs1]) * ((uint32_t) x[rs2]));
-                            //x[rd] = u_mul >> 32;
-                            assign_reg_val(x,rd,u_mul >> 32);
+                            mod_val = assign_reg_val(x,rd,u_mul >> 32);
                             break;
                         
                         //DIVision
                         case FUNC3_DIV:
                             printf("DIV rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = x[rs1] / x[rs2];
-                            assign_reg_val(x,rd,x[rs1] / x[rs2]);
+                            mod_val = assign_reg_val(x,rd,x[rs1] / x[rs2]);
                             break;
                         
                         //DIVision Unsigned
                         case FUNC3_DIVU:
                             printf("DIVU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = ((uint32_t) x[rs1]) / ((uint32_t) x[rs2]);
-                            assign_reg_val(x,rd,((uint32_t) x[rs1]) / ((uint32_t) x[rs2]));
+                            mod_val = assign_reg_val(x,rd,((uint32_t) x[rs1]) / ((uint32_t) x[rs2]));
                             break;
                         
                         
                         //REMainder
                         case FUNC3_REM:
                             printf("REM rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = x[rs1] % x[rs2];
-                            assign_reg_val(x,rd,x[rs1] % x[rs2]);
+                            mod_val = assign_reg_val(x,rd,x[rs1] % x[rs2]);
                             break;
                         
                         //REMainder Unsigned
                         case FUNC3_REMU:
                             printf("REMU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = ((uint32_t) x[rs1]) % ((uint32_t) x[rs2]);
-                            assign_reg_val(x,rd,((uint32_t) x[rs1]) % ((uint32_t) x[rs2]));
+                            mod_val = assign_reg_val(x,rd,((uint32_t) x[rs1]) % ((uint32_t) x[rs2]));
                             break;
                             
                         default:
@@ -857,42 +855,36 @@ int main(int argc, char *argv[]){
                         if(sum_bool){
                             //SUB
                             printf("SUB rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = x[rs1] - x[rs2];
-                            assign_reg_val(x,rd,x[rs1] - x[rs2]);
+                            mod_val = assign_reg_val(x,rd,x[rs1] - x[rs2]);
                         }else{
                             //ADD
                             printf("ADD rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = x[rs1] + x[rs2]; 
-                            assign_reg_val(x,rd,x[rs1] + x[rs2]);
+                            mod_val = assign_reg_val(x,rd,x[rs1] + x[rs2]);
                         }
                         break;
 
                     //Shift Logical Left
                     case FUNC3_SLL:
                         printf("SLL rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                        //x[rd] = x[rs1] << x[rs2];
-                        assign_reg_val(x,rd,x[rs1] << x[rs2]);
+                        mod_val = assign_reg_val(x,rd,x[rs1] << x[rs2]);
                         break;
 
                     //Set Lower Than
                     case FUNC3_SLT:
                         printf("SLT rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                        //x[rd] = x[rs1] < x[rs2]? 0b1 : 0b0;
-                        assign_reg_val(x,rd,x[rs1] < x[rs2]? 0b1 : 0b0);
+                        mod_val = assign_reg_val(x,rd,x[rs1] < x[rs2]? 0b1 : 0b0);
                         break;
 
                     //Set Lower Than Unsigned
                     case FUNC3_SLTU:
                         printf("SLTU rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                        //x[rd] = (uint32_t) x[rs1] < (uint32_t) x[rs2];
-                        assign_reg_val(x,rd,(uint32_t) x[rs1] < (uint32_t) x[rs2]);
+                        mod_val = assign_reg_val(x,rd,(uint32_t) x[rs1] < (uint32_t) x[rs2]);
                         break;
 
                     //eXlusive OR
                     case FUNC3_XOR:
                         printf("XOR rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                        //x[rd] = x[rs1] ^ x[rs2];
-                        assign_reg_val(x,rd,x[rs1] ^ x[rs2]);
+                        mod_val = assign_reg_val(x,rd,x[rs1] ^ x[rs2]);
                         break;
 
                     //Shift Right L/A
@@ -900,28 +892,24 @@ int main(int argc, char *argv[]){
                         if(sum_bool){
                             //Shift Right Logical
                             printf("SRT rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = (uint32_t) x[rs1] >> x[rs2];
-                            assign_reg_val(x,rd,(uint32_t) x[rs1] >> x[rs2]);
+                            mod_val = assign_reg_val(x,rd,(uint32_t) x[rs1] >> x[rs2]);
                         }else{
                             //Shift Right Arithmetic
                             printf("SRA rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                            //x[rd] = x[rs1] >> x[rs2];
-                            assign_reg_val(x,rd,x[rs1] >> x[rs2]);
+                            mod_val = assign_reg_val(x,rd,x[rs1] >> x[rs2]);
                         }
                         break;
 
                     //OR
                     case FUNC3_OR:
                         printf("OR rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                        //x[rd] = x[rs1] | x[rs2];
-                        assign_reg_val(x,rd,x[rs1] | x[rs2]);
+                        mod_val = assign_reg_val(x,rd,x[rs1] | x[rs2]);
                         break;
 
                     //AND
                     case FUNC3_AND:
                         printf("AND rs1: %u rs2: %u rd: %u\n", rs1, rs2, rd);
-                        //x[rd] = x[rs1] & x[rs2];
-                        assign_reg_val(x,rd,x[rs1] & x[rs2]);
+                        mod_val = assign_reg_val(x,rd,x[rs1] & x[rs2]);
                         break;
 
                     default:
@@ -959,6 +947,10 @@ int main(int argc, char *argv[]){
                 errx(EXIT_FAILURE, "ERROR: couldn't match operation code (instruction 0x%x; opcode 0x%x).",inst, opcode);
                 return 1;
 
+        }
+        add_step(&back_log, pc, mod_val);
+        if(next_pc > max_vaddr || next_pc < min_vaddr){
+            errx(EXIT_FAILURE, "ERROR: trying to execute an out of limit instruction. (min_vaddr: %u, max_vaddr: %u, instruction addr: %u)", min_vaddr, max_vaddr, next_pc);
         }
     }
 

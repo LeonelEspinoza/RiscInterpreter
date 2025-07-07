@@ -55,7 +55,8 @@ block_entry *init_block_table(){
     block_entry *bt = (block_entry *) malloc( sizeof(block_entry) * BLOCK_TABLE_SIZE );
     for(int i=0;i<BLOCK_TABLE_SIZE;i++){
         bt[i].no = i;
-        bt[i].start_addr = i*BLOCK_SIZE;
+        //i * (2**21)
+        bt[i].start_addr = i<<21;
         bt[i].mem_init = 0;
     }
     return bt;
@@ -184,7 +185,7 @@ size_t write_in_bulk(block_entry *bt, uint32_t start_logical_addr, void *buf, si
 
 /* Reads starting at given logical address and saves content in buffer
 @param bt block_table containing all block_entry
-@param start_logical_addr logical address to start writing at
+@param start_logical_addr logical address to start reading at
 @param buf buffer for content read
 @param content_size total size of content to be read in bytes
 @return bytes written

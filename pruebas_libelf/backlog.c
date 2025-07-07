@@ -3,19 +3,14 @@
 #include <stdio.h>
 #include <err.h>
 
-#include "pag2.c"
-#include "auxiliar.c"
-
 #define BACKLOG_SIZE 101
 /* Structure back_step
 @param inst_addr    instruction address
-@param mod_val1     modified value 1
-@param mod_val2     modified value 2
+@param mod_val      modified value 
 */
 typedef struct back_step{
     uint32_t inst_addr;
-    uint32_t mod_val_1;
-    uint32_t mod_val_2;
+    uint32_t mod_val;
 }back_step;
 
 
@@ -51,14 +46,12 @@ void free_backlog(backlog *b){
 /* Saves new back_step in backlog
 @param b            pointer to backlog
 @param inst         instruction executed
-@param mod_val_1    modified value 1
-@param mod_val_2    modified value 2
+@param mod_val      modified value 
 */
-void add_step(backlog *b,uint32_t inst,uint32_t mod_val_1,uint32_t mod_val_2){
+void add_step(backlog *b,uint32_t inst,uint32_t mod_val){
     back_step bs;
     bs.inst_addr = inst;
-    bs.mod_val_1 = mod_val_1;
-    bs.mod_val_2 = mod_val_2;
+    bs.mod_val = mod_val;
 
     uint32_t bot = b->bot;
     uint32_t tmp = (b->top+1)%BACKLOG_SIZE;
@@ -85,20 +78,7 @@ back_step go_back(backlog *b){
     return ret;
 }
 
-/* Reset modified values back
-@param b            pointer to backlog
-@param bt           pointer to block_table (memory structure)
-void exe_go_back(backlog *b, block_entry * bt){
-    back_step bs = go_back(b);
-    uint32_t back_add = bs.inst_addr;
-    uint32_t inst;
-    read_from_bulk(bt, back_add, &inst, sizeof(inst));
-    uint32_t mod_val1 = bs.mod_val_1;
-    uint32_t mod_val2 = bs.mod_val_2;
-    return;   
-}
-*/
-
+/*
 void main(){
     uint32_t inst[200],mod[200],mod2[200];
     for(int i=0;i<200;i++){
@@ -130,3 +110,4 @@ void main(){
     free_backlog(&bl);
     return;
 }
+*/

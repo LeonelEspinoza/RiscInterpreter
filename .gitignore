@@ -54,3 +54,4 @@ dkms.conf
 # others
 pruebas_libelf/ignore/
 .obsidian
+*.gcc

@@ -105,9 +105,17 @@ Además algo necesario para comenzar la ejecución es la dirección de la primer
 Una vez cargados en memoria todos los segmentos y secciones necesarias para la ejecución, y se tiene la dirección de la primera instrucción a ejecutar, se puede comenzar con la interpretación del binario.
 ### Estructura de Memoria
 La estructura de memoria implementada esta pensada utilizando paginamiento con bloques de tamaño 2MB (2²¹ bytes), y 2¹¹ entradas en la tabla de bloques, dejando así 2³² posibles direcciones de memoria. Además esta implementacion permite que solo se inicialicen los bloques de memoria necesarios para la ejecución. Hay 2¹¹ posibles entradas en la tabla, pero solo aquellas que son utilizadas e inicializadas ocupan los 2MB de memoria. 
+
+Con el fin de optimizar el acceso a la memoria y al uso de espacio de la misma, se implemento una estructura de memoria que utiliza paginamiento con paginas ó bloques de 2MB y una tabla con 2048 entradas para bloques. De esta forma, la tabla tiene $2^{11}$ entradas para bloques de 2MB ó $2^{21}$ bytes, dejando un total $2^{32}$ posibles direcciones, las cuales son todas las posibles direcciones a las que se puede acceder en un sistema de 32 bits. Así también se aprovecha de tomar los primeros $2^{11}$ bits de una dirección para definir el bloque de memoria, y los otros $2^{21}$ bits definen el offset dentro del bloque. 
+La optimización de memoria se da debido a que solo se inicializan los bloques de memoria en los que se escribe información. Es decir, la memoria utilizada crece de a 2MB de memoria por cada vez que se escriba en una dirección dentro de un bloque que no esté inicializado.
 ### Funcionalidad Step
-Para implementar la funcionalidad de step, basicamente dentro del loop 
+La funcionalidad de step se refiere a que mientras se está depurando el programa o interpretando, el usuario puede ingresar un input indicando si quiere avanzar una instrucción hacia adelante en la ejecución. Además de esto el usuario tiene la opción de ingresar un input para:
++ Ver los valores de los registros en el punto actual de la ejecución
++ Pedir ver más detalles de la instrucción ejecutada
++ Saltar varios instrucciones hacia adelante
++ Terminar el programa
 ### Estructura de Almacenamiento de Traza
+En rv32im no hay ninguna instrucción que modifique 2 valores por ciclo. Todas las instrucciones de Risc-V modifican como máximo 1 registro, o dirección de memoria, y definen la dirección en memoria de la próxima instrucción a ejecutar. Gracias a esto se puede crear una estructura que almacena solo dos valores necesarios para restaurar el estado de la ejecución a justo antes de ejecutar la instrucción. Estos dos valores son: Valor antes de modificar del registro ó dirección en memoria, y la dirección de la instrucción recién ejecutada. Una de estas estructuras es suficiente para volver atrás un paso en la ejecución. Y para almacenar una traza de las instrucciones utilizando la memoria de forma circular, se crea otra estructura que contiene: un arreglo de tamaño N  
 ### Funcionalidad de Back-Step
 # Cap 3: Evaluación de la Solución
 ## Método de Evaluación

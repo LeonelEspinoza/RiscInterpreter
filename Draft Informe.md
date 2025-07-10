@@ -60,44 +60,24 @@ Tomando el estado del interprete, lo siguiente era la funcionalidad de procesar 
 
 Entonces el siguiente paso fue implementar las funcionalidades para retroceder en la ejecución del depurador. Esto significaba crear una estructura que guardara todos los valores necesarios para restaurar el estado del programa a uno anterior en la ejecución, y una estructura que guardara estas estructuras utilizando memoria de forma circular, permitiendo así que se pudieran agregar estos datos por cada instrucción ejecutada, eliminando aquellas más antiguas para escribir las nuevas. Para comprobar el funcionamiento de esta última parte se utilizo otro código simple en c que intenta acceder a una dirección de memoria no inicializada, produciendo un segmentation fault. Este nuevo compilado levanto nuevos errores en la solución, las cuales se intentaron resolver.
 ### Intérprete de instrucciones rv32im
-El intérprete es de las partes más grandes de la memoria. Una vez todas la información importante del archivo ELF a depurar está cargada en memoria, comienza la interpretación del mismo. 
+El intérprete es una funcionalidad esencial en el funcionamiento del depurador. Una vez todas la información importante del archivo ELF a depurar está cargada en memoria, comienza la interpretación del mismo. 
 
 La primera instrucción a ejecutar es aquella en la dirección especificada por el símbolo '\_start', a partir de ahí se avanza la ejecución leyendo de a 4 bytes o 32 bits en la abstracción de memoria.
 
-Para interpretar una instrucción primero se obtiene de la memoria 4 bytes de información, los cuales contienen toda la información necesaria para ejecutar. 
-Después esta instrucción se divide en todas las partes que la componen: 
-+ opcode
-+ rd
-+ rs1
-+ rs2
-+ func3
-+ imm
-+ uimm
-Dependiendo del código de operación algunas secciones se usan y otras no.
-Las instrucciones posibles son:
-+ LOAD UPPER IMMEDIATE
-+ ADD UPPER IMMEDIATE PROGRAM COUNTER
-+ JUMP AND LINK
-+ JUMP AND LINK RETURN
-+ BRANCH EQUAL
-+ BRANCH NOT EQUAL
-+ BRANCH LOWER THAN
-+ BRANCH GREATER OR EQUAL
-+ BRANCH LOWER THAN UNSIGNED
-+ BRANCH GREATER EQUAL UNSIGNED
-+ LOAD BYTE
-+ LOAD HALF WORD
-+ LOAD WORD
-+ LOAD BYTE UNSIGNED
-+ LOAD HALF WORD UNSIGNED
-+ STORE BYTE
-+ STORE HALF WORD
-+ STORE WORD
-+ OPERATION IMMEDIATE 
-+ OPERATION
-Utilizando el código de operación dentro de la instrucción se matchea con cada caso necesario.
+Una instrucción de rv32im esta representada por 32 bits seccionado para componer las diferentes partes de la instrucción. Los 7 bits menos significativos de la instrucción representan el código de operación. Este indica que operación debe ejecutarse, en este caso por el interprete. Hay 47 posibles operaciones, entre las que están: Jump And Link, Multiply, Addition, Addition Immediate, Branch Lower Than, Load Byte, Store Word, Load Upper Immediate, etc. (Ver documentación instrucciones de RISC-V) Cada una de estas operaciones tiene asociado un código de 7 bits, y con esto comparando los 7 bits de la instrucción se puede obtener la operación específica de una instrucción.
 
-Una vez reconocido el código de operación se ejecuta de acuerdo a la documentación, con algunas observaciones adicionales, como asegurarse de que el registro 0 siempre se mantenga como 0, y mostrarle al usuario que instrucción se ejecuta en conjunto con valores importantes de la instrucción.
+Aparte de el código de operación, dentro de la instrucción hay secciones que tienen diferentes largos y propósitos según la operación a ejecutar. Por ejemplo está el registro de destino (rd) representado por los bits 19 a 15 de la instrucción. Este se utiliza en la gran mayoría de operaciones, e indica en qué registro almacenar cierta información, como lo puede ser con Load Word, que carga al registro destino el valor en una dirección de memoria específica. En cambio, operaciones tal como Branch o Store no se utiliza el registro de destino y los bits designados al registro de destino se utilizan con otro propósito. Otros valores importantes representados por diferentes grupos de bits en la instrucción son:
++ Func-3: usado para identificar una operación dentro de una familia de operaciones, como lo puede ser Load Half Word dentro de la familia de operaciones de Load. Este es representado por los bits 14 a 12 de la instrucción.
++ Registro fuente 1 y 2: usados para identificar dos registros que utilizar en una operación, por ejemplo al comparar dos registros en un Branch Greater or Equal. Estos son representados por los bits 24 a 20 para el registro fuente 2, y 19 a 15 para el registro fuente 1.
++ Valor inmediato: usado para representar un número constante y realizar una operación inmediata, que se utiliza principalmente en todas las operaciones inmediatas de aritmética o lógica, aunque también se utiliza como offset para obtener una dirección de memoria específica. Este tiene la particularidad de que no siempre es representado por los mismos bits. El conjunto de bits y orden de los mismos es dependiente de la operación que lo utiliza, como por ejemplo: Load Upper Immediate lo representa con los 20 bits más importantes de la instrucción, mientras que Jump And Link utiliza una reorganización de los bits 31 al 12 de la instrucción para representar el valor inmediato.
+
+Una vez identificados los valores necesarios dentro de los 32 bits de una instrucción, es necesario ejecutar la operación correspondiente utilizando los valores especificados por la instrucción. Para esto se hace uso de la instrucción 'Switch-Case' de C, la cual determina cuál de las 47 es la operación representada por el código de operación obtenido de la instrucción. Y después se ejecuta esta operación utilizando los valores correspondientes, también obtenidos de los 32 bits de la instrucción. 
+
+Cada operación esta implementada de acuerdo a la documentación de Risc-V, con algunas modificaciones para adecuarlas al entorno en el que se está trabajando.Por ejemplo, hay que notar que también es necesario mantener una particularidad de los registros en Risc-V. En específico, el registro 0 de Risc-V se debe mantener con valor 0. Para eso es necesario que cada vez que se quiera asignar un valor a un registro, verificar que el registro a modificar no sea el registro 0, y si lo es, descartar el valor a asignar. Esto es implementado con una función que realiza la verificación y modifica los valores siempre que corresponda, pero además retorna el valor previo a modificar. Esta última funcionalidad se utiliza para almacenar la traza de ejecución. (ver Almacenamiento de Traza)
+
+Al terminar la ejecución de una instrucción, la siguiente instrucción a ejecutar es aquella en la dirección de la estructura de memoria definida por la variable 'next_pc'. Como cada instrucción es representada con 32 bits, o 4 bytes, 'next_pc' de forma general es la dirección en memoria de la instrucción actual más 4. En el caso de realizar un salto o ramificación en la ejecución del código, se modifica la variable 'next_pc' para que apunte a la instrucción en la dirección del salto.
+
+También es necesario verificar que el valor de 'next_pc' jamás apunte a una dirección en memoria no inicializada o un valor que no represente una instrucción ejecutable. Para esto se utilizan los valores de 'max_vaddr' o máxima dirección virtual, y 'min_vaddr' o mínima dirección virtual. Al finalizar cada ciclo se verifica que 'next_pc' esté dentro del rango entre el máximo y mínimo valor de direcciones virtuales.
 ### Manejo de archivos ELFs
 Para hacer que la solución sea lo más útil posible, se decidió que el depurador debía poder procesar archivos ELFs compilados para una arquitectura rv32im. 
 
@@ -138,6 +118,13 @@ Para devolver el estado de ejecución a justo antes de ejecutar una instrucción
 + Se modifico un registro, que puede ser producto de cualquier otra instrucción. En este caso se obtiene el registro que fue modificado a través de la misma instrucción, y en este se almacena el valor previo a ser modificado, el cuál fue guardado dentro del back-step cuando fue ejecutada previamente. Por último se indica que la dirección de la próxima instrucción a ejecutar es esta instrucción.
 Al terminar, el estado del programa es el mismo que al momento anterior de ejecutar la instrucción recién retrocedida. Por lo tanto, este proceso se puede repetir siempre y cuando haya al menos un back-step almacenado en el backlog.
 # Cap 3: Evaluación de la Solución
+La evaluación de la solución tiene como objetivo comprobar que el producto sea capaz de interpretar correctamente un binario compilado para Risc-V usando específicamente el set de instrucciones rv32im, y cumpliendo con funcionalidades básicas de un depurador tales como: mostrarle al usuario el detalle de las instrucciones interpretadas, mostrarle al usuario los valores de los registros, y la funcionalidad de avanzar y retroceder en la interpretación del binario manteniendo el estado de ejecución consistente. 
+
+La evaluación se realizó utilizando dos códigos escritos en c, compilados para arquitectura rv32im. El primero de estos archivos es "fact10.c", que calcula el factorial de 10 usando una función recursiva, y al finalizar el cálculo imprime el resultado en la salida estándar. El objetivo de utilizar este código es que el interprete ejecute un código con un poco de complejidad y comprobar que la mayor cantidad de operaciones funcionan correctamente. Además de comprobar que el depurador es capaz de ejecutar saltos, llamadas a funciones y ramificaciones en la ejecución correctamente.
+
+El segundo es el archivo "seg_fault.c", el cual crea un arreglo de 5 enteros e intenta acceder a una dirección de memoria fuera de rango, y al ejecutarlo da un error de 'segmentation fault'. El objetivo de evaluar utilizando este código es comprobar que el depurador es capaz de trabajar con códigos que compilan pero sin embargo tienen errores en su ejecución, y es aquí donde las funcionalidades de avanzar y retroceder en la ejecución del código es lo más útil.
+
+
 ## Método de Evaluación
 ## Resultados de la Evaluación
 # Cap 4: Conclusiones y Trabajo a Futuro

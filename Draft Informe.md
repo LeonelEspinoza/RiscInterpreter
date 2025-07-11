@@ -47,6 +47,8 @@ La solución obtenida es básicamente un interprete que recibe un input de usuar
 + 
 ## Estructura del Documento
 % Quizás no necesito esta sección
+
+---
 # Cap 2: Desarrollo de la Solución
 ## Requisitos
 Qué tiene que cumplir este depurador?
@@ -86,30 +88,57 @@ FENCE es una operación utilizada para ordenar lectura y escritura en memoria, a
 
 Cada operación esta implementada de acuerdo a la documentación de Risc-V, con algunas modificaciones para adecuarlas al entorno en el que se está trabajando.Por ejemplo, hay que notar que también es necesario mantener una particularidad de los registros en Risc-V. En específico, el registro 0 de Risc-V se debe mantener con valor 0. Para eso es necesario que cada vez que se quiera asignar un valor a un registro, verificar que el registro a modificar no sea el registro 0, y si lo es, descartar el valor a asignar. Esto es implementado con una función que realiza la verificación y modifica los valores siempre que corresponda, pero además retorna el valor previo a modificar. Esta última funcionalidad se utiliza para almacenar la traza de ejecución. (ver Almacenamiento de Traza)
 
+Además, al ejecutar cada instrucción, se le muestra al usuario que operación se ejecutó, y los valores utilizados para ejecutarla, tal como constantes o registros utilizados. Un ejemplo de ejecutar la operación inmediata de conjunción aritmética ("and") en bits:
+
+>"ANDI imm: 15 rs1: 14 rd: 15"
+
+En el ejemplo se puede ver representado:
++ "ANDI": operación realizada
++ "imm: 15": valor de la constante utilizada
++ "rs1: 14": registro fuente 1 utilizado
++ "rd: 15": registro destino donde se guarda el resultado
+
 Al terminar la ejecución de una instrucción, la siguiente instrucción a ejecutar es aquella en la dirección de la estructura de memoria definida por la variable 'next_pc'. Como cada instrucción es representada con 32 bits, o 4 bytes, 'next_pc' de forma general es la dirección en memoria de la instrucción actual más 4. En el caso de realizar un salto o ramificación en la ejecución del código, se modifica la variable 'next_pc' para que apunte a la instrucción en la dirección del salto.
 
 También es necesario verificar que el valor de 'next_pc' jamás apunte a una dirección en memoria no inicializada o un valor que no represente una instrucción ejecutable. Para esto se utilizan los valores de 'max_vaddr' o máxima dirección virtual, y 'min_vaddr' o mínima dirección virtual. Al finalizar cada ciclo se verifica que 'next_pc' esté dentro del rango entre el máximo y mínimo valor de direcciones virtuales.
 ### Manejo de archivos ELFs
-Para hacer que la solución sea lo más útil posible, se decidió que el depurador debía poder procesar archivos ELFs compilados para una arquitectura rv32im. 
+El depurador debe ser capaz de depurar archivos binarios compilados para utilizar la arquitectura rv32im, y en Linux el formato binario por defecto es ELF, Executable and Linkable Format. Por lo que, antes de comenzar con la interpretación es necesario procesar la información presente en el binario ELF, asegurando que el archivo cumpla ciertos requisitos como: ser de formato ELF, ser ejecutable, contener información estándar importante como la dirección "\_start", cumplir con tamaños y formato esperados, entre otros. 
 
-Para lograr esto fue necesario estudiar como se componen estos archivos y las partes necesarias para la ejecución, intentando minimizar la cantidad de información.
+Para lograr esto fue necesario estudiar el formato ELF y encontrar las partes necesarias para la ejecución, intentando minimizar la cantidad de información que se tiene que cargar a memoria. Además, dentro del código fue necesario hacer uso de la librería "libelf", la cual brinda herramientas y funciones útiles para manipular y leer este formato, facilitando el desarrollar el procesador necesario para la solución.
 
-Las partes que se cargan a memoria son los segmentos marcados con la flag LOAD. Y se cargan a memoria manteniendo las mismas direcciones virtuales, evitando re-localizar direcciones dentro del intérprete. Lo principal a tener en cuenta de este proceso es que es aquí donde todas las instrucciones se cargan a la estructura de memoria del depurador, quedando en las misma distribución en la que están.
+Dentro del formato ELF, están los segmentos y las secciones. Ambas son organizaciones lógicas dentro del formato, pero se diferencian en que las secciones son utilizadas por el linker, y los segmentos son utilizados en tiempo de ejecución. La solución desarrollada carga a memoria todos los segmentos marcados con "PT_LOAD", ya que son estos segmentos los que se utilizan para la ejecución. Al cargar estos segmentos, se tiene el cuidado de mantener las mismas direcciones virtuales dentro de la estructura de memoria donde se carga la información, simplificando el uso de memoria en el resto del desarrollo y dejando la información en la misma distribución en la que se encuentran.
 
-Además algo necesario para comenzar la ejecución es la dirección de la primera instrucción a ejecutar, la cuál esta indicada con el símbolo "\_start", en la sección de símbolos dentro del ELF.
+Agregado a cargar los segmentos a memoria, se obtienen cuáles son los valores mínimos y máximos de las direcciones virtuales de los segmentos cargados en memoria. Estos valores se utilizan en el interprete para asegurar que siempre se ejecuten direcciones de memoria que contengan instrucciones ejecutables.
 
-Una vez cargados en memoria todos los segmentos y secciones necesarias para la ejecución, y se tiene la dirección de la primera instrucción a ejecutar, se puede comenzar con la interpretación del binario.
+Por último es necesario obtener la dirección virtual de la primera instrucción que se debe ejecutar. Esta dirección esta enlazada al símbolo "\_start" dentro de la sección ".symbol", la cuál se obtiene recorriendo los valores dentro de la sección hasta encontrarla y se guarda para utilizarla al comenzar la interpretación del archivo. 
+
+Con los segmentos cargados en memoria, el valor de las direcciones virtuales máximas y mínimas, y la dirección de la primera instrucción a ejecutar, entonces se puede comenzar con la interpretación y otras funciones del depurador.
 ### Estructura de Memoria
-La estructura de memoria implementada esta pensada utilizando paginamiento con bloques de tamaño 2MB (2²¹ bytes), y 2¹¹ entradas en la tabla de bloques, dejando así 2³² posibles direcciones de memoria. Además esta implementacion permite que solo se inicialicen los bloques de memoria necesarios para la ejecución. Hay 2¹¹ posibles entradas en la tabla, pero solo aquellas que son utilizadas e inicializadas ocupan los 2MB de memoria. 
+El depurador necesita de una estructura de memoria que guarde la información que se debe cargar para procesar los binarios ELFs, y que permita implementar las funcionalidades de las operaciones LOAD y STORE de Risc-V. Entonces se implementó una estructura de memoria adecuada a las necesidades de la solución.
 
-Con el fin de optimizar el acceso a la memoria y al uso de espacio de la misma, se implemento una estructura de memoria que utiliza paginamiento con paginas ó bloques de 2MB y una tabla con 2048 entradas para bloques. De esta forma, la tabla tiene $2^{11}$ entradas para bloques de 2MB ó $2^{21}$ bytes, dejando un total $2^{32}$ posibles direcciones, las cuales son todas las posibles direcciones a las que se puede acceder en un sistema de 32 bits. Así también se aprovecha de tomar los primeros $2^{11}$ bits de una dirección para definir el bloque de memoria, y los otros $2^{21}$ bits definen el offset dentro del bloque. 
-La optimización de memoria se da debido a que solo se inicializan los bloques de memoria en los que se escribe información. Es decir, la memoria utilizada crece de a 2MB de memoria por cada vez que se escriba en una dirección dentro de un bloque que no esté inicializado.
-### Funcionalidad Step
-La funcionalidad de step se refiere a que mientras se está depurando el programa o interpretando, el usuario puede ingresar un input indicando si quiere avanzar una instrucción hacia adelante en la ejecución. Además de esto el usuario tiene la opción de ingresar un input para:
-+ Ver los valores de los registros en el punto actual de la ejecución
-+ Pedir ver más detalles de la instrucción ejecutada
-+ Saltar varios instrucciones hacia adelante
-+ Terminar el programa
+Con el fin de optimizar los accesos y el uso de espacio, se implementó una estructura de memoria que utiliza paginamiento con bloques de 2MB y una tabla con 2048 entradas para bloques. De esta forma, la tabla tiene $2^{11}$ entradas para bloques de 2MB ó $2^{21}$ bytes, dejando un total $2^{32}$ posibles direcciones, las cuales son todas las posibles direcciones a las que se puede acceder en un sistema de 32 bits. 
+
+La optimización de los accesos a la memoria se realiza aprovechando que la cantidad de entradas en la tabla y el tamaño de los bloques son ambas potencias de 2. Una dirección tiene 32 bits, de estos 32 bits se utilizan los primeros 11 bits para definir la entrada en la tabla de bloques. Los 21 bits restantes de la dirección se utilizan para definir el offset desde el inicio del bloque. 
+
+La optimización de memoria se da debido a que solo se inicializan los bloques de memoria en los que se escribe información. Es decir, la memoria parte con todas sus entradas sin inicializar, y al momento de escribir en una dirección dentro de una de estas entradas sin inicializar, se le asignan 2 MB de espacio a la entrada. Así, el tamaño utilizado por la estructura de memoria crece en bloques de 2MB cada vez que se escribe en una dirección dentro de un bloque sin inicializar.
+### Funcionalidad Step y Ver Registros
+Para que la solución cumpla las funcionalidades de un depurador, es necesario que sea capaz de permitirle al usuario avanzar en la ejecución de a una o más ejecuciones, mostrando información relevante relacionada a la ejecución, y permitirle al usuario verificar los valores de las variables dentro del programa. En el caso de Risc-V, las variables son 32 registros, los cuales según la documentación cumplen ciertos roles en específico. 
+
+Entonces, antes de que el interprete inicie su ejecución, el programa le presenta el siguiente texto al usuario:
+
+> "Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d)"
+
+Las cuales hacen referencia a las siguientes opciones:
++ Terminar el programa.
++ Avanzar la ejecución en una instrucción.
++ Retroceder la ejecución en una instrucción.
++ Avanzar la ejecución en varias instrucciones.
++ Ver los valores de los registros en el punto actual de la ejecución.
++ Configurar el interprete para mostrar más información por instrucción.
+
+Una vez el usuario ingresa su input, se verifica que este haya sido válido, y se prosigue la ejecución de acuerdo al comando ingresado por el usuario.
+
+En el caso de terminar el programa, se realizan las limpiezas de memoria y operaciones necesarias de limpieza y se finaliza. Avanzar una instrucción en la ejecución ejecuta el interprete con la siguiente instrucción correspondiente. Retroceder una instrucción utiliza el almacenamiento de Traza y la funcionalidad de back-step para restaurar el estado de la ejecución hasta $N$ instrucciones anteriores. Avanzar varias instrucciones, ejecuta 100 instrucciones. Ver los valores de los registros muestra al usuario una tabla de $2\times16$ con los valores de los registros correspondientes. Y por último, mostrar más información por instrucción añade información sobre dirección en memoria de la instrucción, representación numérica de la instrucción y código de operación de la instrucción
 ### Almacenamiento de Traza
 #### Estructura Back-step
 En rv32im no hay ninguna instrucción que modifique 2 o más valores por ciclo. Todas las instrucciones de Risc-V modifican como máximo 1 registro o dirección de memoria, y definen la dirección en memoria de la próxima instrucción a ejecutar. Gracias a esto se puede crear una estructura que almacena solo dos valores necesarios para restaurar el estado de la ejecución a justo antes de ejecutar la instrucción. Estos dos valores son: Valor antes de modificar del registro o dirección en memoria, y la dirección en memoria de la instrucción recién ejecutada. Llamemos a esta estructura: back-step.
@@ -128,6 +157,8 @@ Para devolver el estado de ejecución a justo antes de ejecutar una instrucción
 + Se modifico una dirección de memoria, producto de una operación de store. En este caso, se obtiene la dirección de memoria modificada a través de la misma instrucción. Y dentro de esta se almacena el valor previo a ser modificado, el cuál fue guardado dentro del back-step cuando fue ejecutada previamente. Por último se indica que la dirección de la próxima instrucción a ejecutar es esta instrucción.
 + Se modifico un registro, que puede ser producto de cualquier otra instrucción. En este caso se obtiene el registro que fue modificado a través de la misma instrucción, y en este se almacena el valor previo a ser modificado, el cuál fue guardado dentro del back-step cuando fue ejecutada previamente. Por último se indica que la dirección de la próxima instrucción a ejecutar es esta instrucción.
 Al terminar, el estado del programa es el mismo que al momento anterior de ejecutar la instrucción recién retrocedida. Por lo tanto, este proceso se puede repetir siempre y cuando haya al menos un back-step almacenado en el backlog.
+
+---
 # Cap 3: Validación
 La validación tiene como objetivo comprobar que el producto sea capaz de interpretar correctamente un binario compilado para Risc-V usando específicamente el set de instrucciones rv32im, y cumpliendo con funcionalidades básicas de un depurador tales como: mostrarle al usuario el detalle de las instrucciones interpretadas, mostrarle al usuario los valores de los registros, y la funcionalidad de avanzar y retroceder en la interpretación del binario manteniendo el estado de ejecución consistente. Además debería presentar las falencias que tiene y donde la solución no termina de cubrir los requisitos.
 
@@ -137,5 +168,6 @@ El segundo es el archivo "seg_fault.c", el cual crea un arreglo de 5 enteros e i
 ## Método de Validación
 ## Resultados de la Validación
 
+---
 # Cap 4: Conclusiones y Trabajo a Futuro
 ## Trabajo a Futuro

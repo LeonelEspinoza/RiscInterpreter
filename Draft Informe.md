@@ -3,15 +3,21 @@
 Contexto, Justificación, objetivos, alcances, método, estructura
 Temas importantes a la memoria:
 + Por qué realizar este trabajo
-+ Qué es un ISA
-+ Qué es Risc-V
-+ Qué es un ELF
 + Qué es un depurador
 + Qué es un depurador inverso
 + Uso de depuradores inversos
 + Depuradores inversos existentes
++ Qué es un Instruction Set Architecture
++ Qué es Risc-V
++ Qué es un ELF
  
 En cursos de Arquitectura de Computadores y Sistemas Operativos, parte del curriculum de estos es trabajar con un ISA, instruction set architecture, para entender a bajo nivel el funcionamiento de máquinas y PCs. En particular se utiliza la arquitectura Risc-V, una ISA de código abierta enfocada en un set de instrucciones reducido y eficiente, ideal para propósitos didácticos, por lo que se utiliza dentro de ramos de arquitectura de computadores y sistemas operativos. Trabajar con esta arquitectura de bajo nivel es un reto en algunos casos, pues no es familiar y se diferencia con otros lenguajes de programación en que no está pensada para la comodidad del desarrollador que lo utiliza, por tanto el tener una herramienta que facilite el desarrollo de código y permita entender la ejecución de el mismo sería de gran utilidad pera les estudiantes, apoyando su aprendizaje y solventando algunos problemas. Un depurador es una herramienta para desarrolladores que permite entender la ejecución de un código y encontrar errores dentro de un ambiente seguro. 
+
+Un depurador es una herramienta diseñada para facilitarles a los programadores la labor de encontrar y entender bugs que se presentan en tiempo de ejecución de programas y códigos. Esto mediante ejecutar el código a depurar en un ambiente controlado, lo más parecido a un ambiente real de ejecución, pero con la capacidad de manipular el flujo de ejecución del programa, de analizar los valores de variables en los diferentes puntos de la ejecución, y otras funcionalidades útiles.
+
+Un depurador inverso es un tipo de depurador, que además de cumplir con las funcionalidades normales, también permite retroceder en la ejecución de un código.
+
+
 ## Problema a Solucionar
 % Qué problemática se busca solucionar con el trabajo realizado
 El problema que intenta solucionar este trabajo esta relacionado a las dificultades que se presentan al utilizar rv32im para desarrollar código. Además de apoyar a les estudiantes de cursos de Sistemas Operativos y Arquitectura de Computadores DCC.
@@ -31,6 +37,9 @@ Desarrollar un depurador de programas compilados para Risc-V, capaz de depurar e
 
 ## Resumen de la Solución
 % Resumen de la solución obtenida
+La solución obtenida presenta un depurador con funcionalidades básicas tales como avanzar en la ejecución, mostrar valores de los registros en el punto actual de la ejecución, retroceder en la ejecución un máximo de N instrucciones, y mostrar más información sobre las instrucciones ejecutadas.
+
+
 La solución obtenida es básicamente un interprete que recibe un input de usuario para:
 + Ejecutar una instrucción y mostrar en pantalla los valores utilizados
 + Mostrar los valores de los 32 registros de RIsc-V
@@ -71,7 +80,9 @@ Aparte de el código de operación, dentro de la instrucción hay secciones que 
 + Registro fuente 1 y 2: usados para identificar dos registros que utilizar en una operación, por ejemplo al comparar dos registros en un Branch Greater or Equal. Estos son representados por los bits 24 a 20 para el registro fuente 2, y 19 a 15 para el registro fuente 1.
 + Valor inmediato: usado para representar un número constante y realizar una operación inmediata, que se utiliza principalmente en todas las operaciones inmediatas de aritmética o lógica, aunque también se utiliza como offset para obtener una dirección de memoria específica. Este tiene la particularidad de que no siempre es representado por los mismos bits. El conjunto de bits y orden de los mismos es dependiente de la operación que lo utiliza, como por ejemplo: Load Upper Immediate lo representa con los 20 bits más importantes de la instrucción, mientras que Jump And Link utiliza una reorganización de los bits 31 al 12 de la instrucción para representar el valor inmediato.
 
-Una vez identificados los valores necesarios dentro de los 32 bits de una instrucción, es necesario ejecutar la operación correspondiente utilizando los valores especificados por la instrucción. Para esto se hace uso de la instrucción 'Switch-Case' de C, la cual determina cuál de las 47 es la operación representada por el código de operación obtenido de la instrucción. Y después se ejecuta esta operación utilizando los valores correspondientes, también obtenidos de los 32 bits de la instrucción. 
+Una vez identificados los valores necesarios dentro de los 32 bits de una instrucción, es necesario ejecutar la operación correspondiente utilizando los valores especificados por la instrucción. Para esto se hace uso de la instrucción 'Switch-Case' de C, la cual determina cuál de las 47 es la operación representada por el código de operación obtenido en la instrucción. Y después se ejecuta esta operación utilizando los valores correspondientes, también obtenidos de los 32 bits de la instrucción. Es importante notar que hay dos operaciones que no tienen implementación en la solución actual: ECALL, EBREAK, y FENCE. 
+
+FENCE es una operación utilizada para ordenar lectura y escritura en memoria, asegurando que todas las operaciones antes de esta sean ejecutadas antes de cualquier operación después de esta. ECALL es utilizada para realizar llamadas a sistema. Y EBREAK es utilizada para gatillar un breakpoint en la ejecución y entrar en modo debug.
 
 Cada operación esta implementada de acuerdo a la documentación de Risc-V, con algunas modificaciones para adecuarlas al entorno en el que se está trabajando.Por ejemplo, hay que notar que también es necesario mantener una particularidad de los registros en Risc-V. En específico, el registro 0 de Risc-V se debe mantener con valor 0. Para eso es necesario que cada vez que se quiera asignar un valor a un registro, verificar que el registro a modificar no sea el registro 0, y si lo es, descartar el valor a asignar. Esto es implementado con una función que realiza la verificación y modifica los valores siempre que corresponda, pero además retorna el valor previo a modificar. Esta última funcionalidad se utiliza para almacenar la traza de ejecución. (ver Almacenamiento de Traza)
 
@@ -117,15 +128,14 @@ Para devolver el estado de ejecución a justo antes de ejecutar una instrucción
 + Se modifico una dirección de memoria, producto de una operación de store. En este caso, se obtiene la dirección de memoria modificada a través de la misma instrucción. Y dentro de esta se almacena el valor previo a ser modificado, el cuál fue guardado dentro del back-step cuando fue ejecutada previamente. Por último se indica que la dirección de la próxima instrucción a ejecutar es esta instrucción.
 + Se modifico un registro, que puede ser producto de cualquier otra instrucción. En este caso se obtiene el registro que fue modificado a través de la misma instrucción, y en este se almacena el valor previo a ser modificado, el cuál fue guardado dentro del back-step cuando fue ejecutada previamente. Por último se indica que la dirección de la próxima instrucción a ejecutar es esta instrucción.
 Al terminar, el estado del programa es el mismo que al momento anterior de ejecutar la instrucción recién retrocedida. Por lo tanto, este proceso se puede repetir siempre y cuando haya al menos un back-step almacenado en el backlog.
-# Cap 3: Evaluación de la Solución
-La evaluación de la solución tiene como objetivo comprobar que el producto sea capaz de interpretar correctamente un binario compilado para Risc-V usando específicamente el set de instrucciones rv32im, y cumpliendo con funcionalidades básicas de un depurador tales como: mostrarle al usuario el detalle de las instrucciones interpretadas, mostrarle al usuario los valores de los registros, y la funcionalidad de avanzar y retroceder en la interpretación del binario manteniendo el estado de ejecución consistente. 
+# Cap 3: Validación
+La validación tiene como objetivo comprobar que el producto sea capaz de interpretar correctamente un binario compilado para Risc-V usando específicamente el set de instrucciones rv32im, y cumpliendo con funcionalidades básicas de un depurador tales como: mostrarle al usuario el detalle de las instrucciones interpretadas, mostrarle al usuario los valores de los registros, y la funcionalidad de avanzar y retroceder en la interpretación del binario manteniendo el estado de ejecución consistente. Además debería presentar las falencias que tiene y donde la solución no termina de cubrir los requisitos.
 
 La evaluación se realizó utilizando dos códigos escritos en c, compilados para arquitectura rv32im. El primero de estos archivos es "fact10.c", que calcula el factorial de 10 usando una función recursiva, y al finalizar el cálculo imprime el resultado en la salida estándar. El objetivo de utilizar este código es que el interprete ejecute un código con un poco de complejidad y comprobar que la mayor cantidad de operaciones funcionan correctamente. Además de comprobar que el depurador es capaz de ejecutar saltos, llamadas a funciones y ramificaciones en la ejecución correctamente.
 
 El segundo es el archivo "seg_fault.c", el cual crea un arreglo de 5 enteros e intenta acceder a una dirección de memoria fuera de rango, y al ejecutarlo da un error de 'segmentation fault'. El objetivo de evaluar utilizando este código es comprobar que el depurador es capaz de trabajar con códigos que compilan pero sin embargo tienen errores en su ejecución, y es aquí donde las funcionalidades de avanzar y retroceder en la ejecución del código es lo más útil.
+## Método de Validación
+## Resultados de la Validación
 
-
-## Método de Evaluación
-## Resultados de la Evaluación
 # Cap 4: Conclusiones y Trabajo a Futuro
 ## Trabajo a Futuro

@@ -6,8 +6,8 @@
 		+ [x] Objetivos Específicos
 	+ [ ] Resumen de la solución
 	+ [ ] Estructura del Documento
-+ [ ] Cap 2: Desarrollo de la Solución
-	+ [ ] Requisitos
++ [x] Cap 2: Desarrollo de la Solución
+	+ [x] Requisitos
 	+ [x] Desarrollo
 		+ [x] Metodología de Desarrollo
 		+ [x] Intérprete de Instrucciones rv32im

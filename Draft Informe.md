@@ -16,8 +16,6 @@ En cursos de Arquitectura de Computadores y Sistemas Operativos, parte del curri
 Un depurador es una herramienta diseñada para facilitarles a los programadores la labor de encontrar y entender bugs que se presentan en tiempo de ejecución de programas y códigos. Esto mediante ejecutar el código a depurar en un ambiente controlado, lo más parecido a un ambiente real de ejecución, pero con la capacidad de manipular el flujo de ejecución del programa, de analizar los valores de variables en los diferentes puntos de la ejecución, y otras funcionalidades útiles.
 
 Un depurador inverso es un tipo de depurador, que además de cumplir con las funcionalidades normales, también permite retroceder en la ejecución de un código.
-
-
 ## Problema a Solucionar
 % Qué problemática se busca solucionar con el trabajo realizado
 El problema que intenta solucionar este trabajo esta relacionado a las dificultades que se presentan al utilizar rv32im para desarrollar código. Además de apoyar a les estudiantes de cursos de Sistemas Operativos y Arquitectura de Computadores DCC.
@@ -51,12 +49,17 @@ La solución obtenida es básicamente un interprete que recibe un input de usuar
 ---
 # Cap 2: Desarrollo de la Solución
 ## Requisitos
-Qué tiene que cumplir este depurador?
-+ Debe ser abierto
-+ Debe ser extensible
-+ Debe soportar archivos ELFs compilados para rv32im
-+ Debe ser capaz de avanzar y retroceder en la ejecución instrucción por instrucción y por llamadas de función
-+ Debe soportar que un programa tenga errores
+Para que el producto de esta memoria cumpla con las expectativas esperadas, se presentan los siguientes requisitos que debe cumplir.
+#### Debe ser abierto
+El depurador debe ser un proyecto de carácter abierto, permitiendo así continuar su desarrollo aún sin el autor, recibiendo modificaciones de desarrolladores contribuyentes.
+#### Debe soportar archivos binarios ELFs compilados para rv32im
+El depurador debe ser capaz de procesar archivos ejecutables binarios en formato ELF compilados para utilizar con una arquitectura rv32im. Utilizando este formato estandarizado para distribuciones de Linux, facilita a los usuarios el uso del depurador.
+#### Debe ser capaz de avanzar y retroceder en la ejecución de un programa
+Esta es una de las funcionalidades básicas esperadas de un depurador inverso. Ejecutar hacia adelante permite al usuario verificar el correcto funcionamiento del código. En cambio, ejecutar hacia atrás permite al usuario entender y identificar errores y su origen en el flujo de la ejecución.
+#### Debe ser capaz de retroceder independiente del largo de la ejecución
+Es necesario que el depurador pueda retroceder en la ejecución, aún cuando la ejecución del programa tome muchas instrucciones en completarse. El objetivo es que al momento de encontrar un error dentro de la ejecución del programa, el depurador permita al usuario retroceder para encontrar el origen de este error, independiente de en qué momento de la ejecución se encuentre el error.
+#### Debe soportar un programa con errores en tiempo de ejecución
+Como depurador, debe ser capaz de procesar y ejecutar un programa que presente errores al momento de ejecutarse, permitiendo así que el usuario identifique los errores y encuentre una solución.
 ## Desarrollo
 ### Metodología de Desarrollo
 El desarrollo de la solución se realizo implementando cada modulo de la solución, comprobando que este funcionara de forma esperada para después integrar sus funcionalidades al conjunto completo de la solución. El primer módulo implementado fue el más grande y la base de todo los demás, e interprete de instrucciones de rv32im.  Este interprete en un principio fue pensado para recibir instrucciones de un archivo de texto con instrucciones en formato hexadecimal, el cual era generado por otra aplicación que procesaba un binario compilado para Risc-v. Una vez este estuvo en funcionamiento, se probó utilizando códigos de prueba que las instrucciones funcionarán de la forma esperada.
@@ -93,10 +96,10 @@ Además, al ejecutar cada instrucción, se le muestra al usuario que operación 
 >"ANDI imm: 15 rs1: 14 rd: 15"
 
 En el ejemplo se puede ver representado:
-+ "ANDI": operación realizada
-+ "imm: 15": valor de la constante utilizada
-+ "rs1: 14": registro fuente 1 utilizado
-+ "rd: 15": registro destino donde se guarda el resultado
++ "ANDI": operación realizada. Conjunción aritmética de bits utilizando constante o valor inmediato.
++ "imm: 15": valor de la constante utilizada.
++ "rs1: 14": registro fuente 1 utilizado.
++ "rd: 15": registro destino donde se guarda el resultado.
 
 Al terminar la ejecución de una instrucción, la siguiente instrucción a ejecutar es aquella en la dirección de la estructura de memoria definida por la variable 'next_pc'. Como cada instrucción es representada con 32 bits, o 4 bytes, 'next_pc' de forma general es la dirección en memoria de la instrucción actual más 4. En el caso de realizar un salto o ramificación en la ejecución del código, se modifica la variable 'next_pc' para que apunte a la instrucción en la dirección del salto.
 

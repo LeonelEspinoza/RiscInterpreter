@@ -1,42 +1,48 @@
 # Cap 1: Introducción
-¿Qué? ¿Por qué? Define lo que el lector puede esperar y justifica la existencia.
-Contexto, Justificación, objetivos, alcances, método, estructura
-Temas importantes a la memoria:
+% ¿Qué? ¿Por qué? Define lo que el lector puede esperar y justifica la existencia.
+% Contexto, Justificación, objetivos, alcances, método, estructura
+% Temas importantes a la memoria:
 + Por qué realizar este trabajo
 + Qué es un depurador
 + Qué es un depurador inverso
 + Uso de depuradores inversos
-+ Depuradores inversos existentes
-+ Qué es un Instruction Set Architecture
-+ Qué es Risc-V
-+ Qué es un ELF
- 
-En cursos de Arquitectura de Computadores y Sistemas Operativos, parte del curriculum de estos es trabajar con un ISA, instruction set architecture, para entender a bajo nivel el funcionamiento de máquinas y PCs. En particular se utiliza la arquitectura Risc-V, una ISA de código abierta enfocada en un set de instrucciones reducido y eficiente, ideal para propósitos didácticos, por lo que se utiliza dentro de ramos de arquitectura de computadores y sistemas operativos. Trabajar con esta arquitectura de bajo nivel es un reto en algunos casos, pues no es familiar y se diferencia con otros lenguajes de programación en que no está pensada para la comodidad del desarrollador que lo utiliza, por tanto el tener una herramienta que facilite el desarrollo de código y permita entender la ejecución de el mismo sería de gran utilidad pera les estudiantes, apoyando su aprendizaje y solventando algunos problemas. Un depurador es una herramienta para desarrolladores que permite entender la ejecución de un código y encontrar errores dentro de un ambiente seguro. 
 
-Un depurador es una herramienta diseñada para facilitarles a los programadores la labor de encontrar y entender bugs que se presentan en tiempo de ejecución de programas y códigos. Esto mediante ejecutar el código a depurar en un ambiente controlado, lo más parecido a un ambiente real de ejecución, pero con la capacidad de manipular el flujo de ejecución del programa, de analizar los valores de variables en los diferentes puntos de la ejecución, y otras funcionalidades útiles.
+ % Por qué
+En cursos de Arquitectura de Computadores y Sistemas Operativos, parte del curriculum de estos es trabajar con un ISA, instruction set architecture, para entender a bajo nivel el funcionamiento de máquinas y PCs. En particular se utiliza la arquitectura Risc-V, un ISA de código abierto enfocado en un set de instrucciones reducido y eficiente, ideal para propósitos didácticos, por lo que se utiliza dentro de ramos de arquitectura de computadores y sistemas operativos. Trabajar con esta arquitectura de bajo nivel es un reto en algunos casos, pues no es familiar y una de sus diferencias con otros lenguajes de programación es que no está pensada para la comodidad del desarrollador que lo utiliza, por tanto el tener una herramienta que facilite el desarrollo de código y permita entender la ejecución de el mismo sería de gran utilidad pera les estudiantes, apoyando su aprendizaje y solventando problemas en el desarrollo utilizando Risc-V. 
 
-Un depurador inverso es un tipo de depurador, que además de cumplir con las funcionalidades normales, también permite retroceder en la ejecución de un código.
+% Depurador
+Un depurador es una herramienta diseñada para facilitar a los programadores la labor de encontrar y entender bugs que se presentan en tiempo de ejecución de programas y códigos. Esto mediante ejecutar el código a depurar en un ambiente controlado, lo más parecido a un ambiente real de ejecución, pero con la capacidad de manipular el flujo de ejecución del programa, ya sea avanzando paso por paso o con saltos a puntos de interés en la ejecución. Otra de las funcionalidades importantes de un depurador es la facultad de analizar los valores de variables en los diferentes puntos de la ejecución.
+
+Un depurador debería seguir con las siguientes metas de diseño: ser simple de utilizar, no intrusión en el programa a depurar, permitir la detención de ejecución en casi cualquier punto, atrapar excepciones, fidelidad con la fuente original, y necesitar modificaciones mínimas en el ambiente. (Biswas, Bitan y Rajib Mall: Reverse execution of programs. ACM SIGPLAN Notices, 34(4):61–69, 1999)
+
+% Depurador Inverso
+Un depurador inverso es un tipo de depurador que además de cumplir con las funcionalidades normales siguiendo el flujo de ejecución hacia adelante, también permite retroceder en la ejecución de un código. Un ejemplo de este comportamiento se puede ver en el depurador GDB, que con las instrucciones "step-back" y "next-back" permiten volver en la ejecución de un programa. 
+
+La posibilidad de retroceder en la ejecución de un programa le presenta al usuario una gran ventaja para encontrar el origen de errores o bugs. Esto permite partir el análisis donde se presenta un comportamiento indeseado y retroceder en la ejecución hasta encontrar la raíz de este comportamiento. Comparando este comportamiento con un depurador clásico , donde la única opción es avanzar en la ejecución, encontrar el origen de errores o bugs conlleva un consumo de tiempo considerable en la depuración. Además esta la posibilidad de rebasar al punto de interés, obligando al usuario re-ejecutar todas las instrucciones desde el inicio hasta llegar al mismo punto.
+
+% Implementaciones Dep. Inv.
+Para cumplir con su funcionalidad de retroceder en la ejecución, un depurador inverso necesita una forma en la que restaurar el estado de ejecución en un momento pasado, y para esto existen dos direcciones de implementación prominentes: utilizando memoria para almacenar estados pasados, o re-ejecutar el código hasta llegar a una posición anterior en el flujo de ejecución. Cada una de estas implementaciones presentan una variedad de desafíos diferentes. 
+
+% Desafíos Implementaciones
+La re-ejecución presenta un sobrecosto en tiempo de ejecución considerable dado que para retroceder una instrucción desde la instrucción $N$ se necesita re-ejecutar $N-1$ instrucciones. Por otro lado, la implementación almacenando estados a lo largo de la ejecución presenta un gran costo en memoria, pues entre más instrucciones se ejecuten más estados se necesitan almacenar en memoria, pudiendo crecer hasta no ser sostenible
 ## Problema a Solucionar
 % Qué problemática se busca solucionar con el trabajo realizado
 El problema que intenta solucionar este trabajo esta relacionado a las dificultades que se presentan al utilizar rv32im para desarrollar código. Además de apoyar a les estudiantes de cursos de Sistemas Operativos y Arquitectura de Computadores DCC.
-## Soluciones Existentes
-% Ejemplos de soluciones existentes (depuradores y depuradores inversos)
-
 ## Objetivos de la Memoria
 % Objetivos que se quieren cumplir al realizar el trabajo
 ### Objetivo General
-Desarrollar un depurador de programas compilados para Risc-V, capaz de depurar errores guardado una traza de las modificaciones hechas en registros y memoria de forma eficiente y extensible. 
-### Objetivos Específicos
-+  Crear un depurador clásico para programas compilados en assembler Risc-V
-+  Implementar funcionalidades de avanzar y retroceder por instrucciones de máquina.
-+  Implementar funciones de avanzar y retroceder por llamada de función.
-+  Implementar interfaz que presente el contenido de memoria y registros.
-+  Implementar funcionalidad de realizar búsquedas hasta modificar una dirección de memoria hacia adelante y hacia atrás.
+El objetivo de esta memoria es comenzar con el desarrollo de un depurador inverso de programas compilados para utilizar la arquitectura de RIsc-V. 
+Dejando un proyecto de código abierto para continuar con su desarrollo.
 
+Desarrollar un depurador de programas compilados para Risc-V, capaz de depurar errores guardado una traza de las modificaciones hechas en registros y memoria de forma eficiente y extensible.
+### Objetivos Específicos
++  Crear un depurador clásico para programas compilados en assembler Risc-V.
++  Implementar la funcionalidad de avanzar por instrucciones de máquina.
++ Implementar la funcionalidad de restaurar estados de la ejecución, anteriores para así retroceder por instrucciones de máquina.
++  Implementar interfaz que presente información relevante sobre la depuración al usuario.
 ## Resumen de la Solución
 % Resumen de la solución obtenida
 La solución obtenida presenta un depurador con funcionalidades básicas tales como avanzar en la ejecución, mostrar valores de los registros en el punto actual de la ejecución, retroceder en la ejecución un máximo de N instrucciones, y mostrar más información sobre las instrucciones ejecutadas.
-
 
 La solución obtenida es básicamente un interprete que recibe un input de usuario para:
 + Ejecutar una instrucción y mostrar en pantalla los valores utilizados
@@ -46,6 +52,19 @@ La solución obtenida es básicamente un interprete que recibe un input de usuar
 ## Estructura del Documento
 % Quizás no necesito esta sección
 
+---
+# Cap 1.5: Situación Actual Y Conceptos Importantes
+## Situación Actual
+### Soluciones Existentes
+% Ejemplos de soluciones existentes (depuradores y depuradores inversos)
+% Depuradores inversos existentes
+
+## Conceptos Importantes
+### ISA: Arquitectura de Conjunto de Instrucciones
+Una arquitectura de conjunto de instrucciones es
+### Risc-V
+### Formato ELF
+ 
 ---
 # Cap 2: Desarrollo de la Solución
 ## Requisitos

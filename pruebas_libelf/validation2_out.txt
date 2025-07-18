@@ -10,14 +10,14 @@ max vaddr: 66888
 
 Begin interpreter
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>n
 AUIPC imm: 8192 rd: 3
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>b
 instruction addres: 65676
 instruction: 8599
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>N
 AUIPC imm: 8192 rd: 3
 ADDI imm: -820 rs1: 3 rd: 3
 ADDI imm: -972 rs1: 3 rd: 10
@@ -32,7 +32,7 @@ ANDI imm: 15 rs1: 14 rd: 15
 BNE imm: 1184 rs1: 15 rs2: 0
 ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66888, instruction addr: 67260)
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>v
 x[ 0] =          0; x[ 1] =      65704;
 x[ 2] =          0; x[ 3] =      73048;
 x[ 4] =          0; x[ 5] =          0;
@@ -51,22 +51,22 @@ x[28] =          0; x[29] =          0;
 x[30] =          0; x[31] =          0;
 
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>d
 Show more instruction details: True
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>b
 instruction addres: 66076
 instruction: 168267875
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>b
 instruction addres: 66072
 instruction: 16218003
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>b
 instruction addres: 66068
 instruction: 46366307
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>v
 x[ 0] =          0; x[ 1] =      65704;
 x[ 2] =          0; x[ 3] =      73048;
 x[ 4] =          0; x[ 5] =          0;
@@ -85,23 +85,23 @@ x[28] =          0; x[29] =          0;
 x[30] =          0; x[31] =          0;
 
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>n
 pc: 66068
 BGEU imm: 1084 rs1: 6 rs2: 12
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>n
 pc: 66072
 ANDI imm: 15 rs1: 14 rd: 15
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>n
 pc: 66076
 BNE imm: 1184 rs1: 15 rs2: 0
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>n
 ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66888, instruction addr: 67260)
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>n
 ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66888, instruction addr: 67260)
 Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
->
+>B
 finish

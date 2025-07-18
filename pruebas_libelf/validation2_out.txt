@@ -1,0 +1,107 @@
+Begin Initialize
+file_name: seg_fault.qemu-O
+
+Getting _start address
+_start address: 0x0001008c 
+
+Begin loader to memory
+min vaddr: 65536
+max vaddr: 66888
+
+Begin interpreter
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+AUIPC imm: 8192 rd: 3
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+instruction addres: 65676
+instruction: 8599
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+AUIPC imm: 8192 rd: 3
+ADDI imm: -820 rs1: 3 rd: 3
+ADDI imm: -972 rs1: 3 rd: 10
+ADDI imm: -944 rs1: 3 rd: 12
+SUB rs1: 12 rs2: 10 rd: 12
+ADDI imm: 0 rs1: 0 rd: 11
+JAL offset: 360 rd: 1
+ADDI imm: 15 rs1: 0 rd: 6
+ADDI imm: 0 rs1: 10 rd: 14
+BGEU imm: 1084 rs1: 6 rs2: 12
+ANDI imm: 15 rs1: 14 rd: 15
+BNE imm: 1184 rs1: 15 rs2: 0
+ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66888, instruction addr: 67260)
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+x[ 0] =          0; x[ 1] =      65704;
+x[ 2] =          0; x[ 3] =      73048;
+x[ 4] =          0; x[ 5] =          0;
+x[ 6] =         15; x[ 7] =          0;
+x[ 8] =          0; x[ 9] =          0;
+x[10] =      72076; x[11] =          0;
+x[12] =         28; x[13] =          0;
+x[14] =      72076; x[15] =         12;
+x[16] =          0; x[17] =          0;
+x[18] =          0; x[19] =          0;
+x[20] =          0; x[21] =          0;
+x[22] =          0; x[23] =          0;
+x[24] =          0; x[25] =          0;
+x[26] =          0; x[27] =          0;
+x[28] =          0; x[29] =          0;
+x[30] =          0; x[31] =          0;
+
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+Show more instruction details: True
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+instruction addres: 66076
+instruction: 168267875
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+instruction addres: 66072
+instruction: 16218003
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+instruction addres: 66068
+instruction: 46366307
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+x[ 0] =          0; x[ 1] =      65704;
+x[ 2] =          0; x[ 3] =      73048;
+x[ 4] =          0; x[ 5] =          0;
+x[ 6] =         15; x[ 7] =          0;
+x[ 8] =          0; x[ 9] =          0;
+x[10] =      72076; x[11] =          0;
+x[12] =         28; x[13] =          0;
+x[14] =      72076; x[15] =          0;
+x[16] =          0; x[17] =          0;
+x[18] =          0; x[19] =          0;
+x[20] =          0; x[21] =          0;
+x[22] =          0; x[23] =          0;
+x[24] =          0; x[25] =          0;
+x[26] =          0; x[27] =          0;
+x[28] =          0; x[29] =          0;
+x[30] =          0; x[31] =          0;
+
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+pc: 66068
+BGEU imm: 1084 rs1: 6 rs2: 12
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+pc: 66072
+ANDI imm: 15 rs1: 14 rd: 15
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+pc: 66076
+BNE imm: 1184 rs1: 15 rs2: 0
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66888, instruction addr: 67260)
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+ERROR: trying to execute an out of limit instruction. (min_vaddr: 65536, max_vaddr: 66888, instruction addr: 67260)
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>
+finish

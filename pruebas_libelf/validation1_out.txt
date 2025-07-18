@@ -1,0 +1,1285 @@
+Begin Initialize
+file_name: fact10.qemu-O
+
+Getting _start address
+_start address: 0x0001008c 
+
+Begin loader to memory
+min vaddr: 65536
+max vaddr: 150332
+
+Begin interpreter
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>n
+AUIPC imm: 86016 rd: 3
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>v
+x[ 0] =          0; x[ 1] =          0;
+x[ 2] =          0; x[ 3] =     151692;
+x[ 4] =          0; x[ 5] =          0;
+x[ 6] =          0; x[ 7] =          0;
+x[ 8] =          0; x[ 9] =          0;
+x[10] =          0; x[11] =          0;
+x[12] =          0; x[13] =          0;
+x[14] =          0; x[15] =          0;
+x[16] =          0; x[17] =          0;
+x[18] =          0; x[19] =          0;
+x[20] =          0; x[21] =          0;
+x[22] =          0; x[23] =          0;
+x[24] =          0; x[25] =          0;
+x[26] =          0; x[27] =          0;
+x[28] =          0; x[29] =          0;
+x[30] =          0; x[31] =          0;
+
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>d
+Show more instruction details: True
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65676
+instruction: 86423
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>n
+pc: 65676
+AUIPC imm: 86016 rd: 3
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>N
+pc: 65680
+ADDI imm: 1924 rs1: 3 rd: 3
+pc: 65684
+ADDI imm: 460 rs1: 3 rd: 10
+pc: 65688
+ADDI imm: 552 rs1: 3 rd: 12
+pc: 65692
+SUB rs1: 12 rs2: 10 rd: 12
+pc: 65696
+ADDI imm: 0 rs1: 0 rd: 11
+pc: 65700
+JAL offset: 464 rd: 1
+pc: 66164
+ADDI imm: 15 rs1: 0 rd: 6
+pc: 66168
+ADDI imm: 0 rs1: 10 rd: 14
+pc: 66172
+BGEU imm: 1084 rs1: 6 rs2: 12
+pc: 66176
+ANDI imm: 15 rs1: 14 rd: 15
+pc: 66180
+BNE imm: 1184 rs1: 15 rs2: 0
+pc: 67364
+JAL offset: 12880 rd: 1
+pc: 80244
+BEQ imm: 1320 rs1: 11 rs2: 0
+pc: 81564
+BNE imm: -2112 rs1: 10 rs2: 13
+pc: 79452
+ADDI imm: 16 rs1: 2 rd: 2
+pc: 79456
+JALR offset: 0 rs1: 1 rd: 0
+pc: 67368
+ADDI imm: 268 rs1: 2 rd: 17
+pc: 67372
+ADDI imm: 0 rs1: 8 rd: 26
+pc: 67376
+LBU imm: 0 rs1: 26 rd: 14
+pc: 67380
+BNE imm: -2600 rs1: 14 rs2: 0
+pc: 67384
+LW imm: 236 rs1: 2 rd: 15
+pc: 67388
+BEQ imm: 1032 rs1: 15 rs2: 0
+pc: 68420
+ADDI imm: 0 rs1: 22 rd: 10
+pc: 68424
+JAL offset: 44276 rd: 1
+pc: 112700
+LW imm: 8 rs1: 12 rd: 14
+pc: 112704
+BEQ imm: 1032 rs1: 14 rs2: 0
+pc: 113736
+ANDI imm: 32 rs1: 27 rd: 15
+pc: 113740
+BEQ imm: 1652 rs1: 15 rs2: 0
+pc: 115392
+ADD rs1: 15 rs2: 13 rd: 15
+pc: 115396
+SW imm: 0 rs1: 8 rs2: 24
+pc: 115400
+SW imm: 4 rs1: 8 rs2: 13
+pc: 115404
+SW imm: 88 rs1: 2 rs2: 15
+pc: 115408
+SW imm: 84 rs1: 2 rs2: 11
+pc: 115412
+ADDI imm: 7 rs1: 0 rd: 14
+pc: 115416
+BGE imm: 1272 rs1: 14 rs2: 11
+pc: 116688
+ADDI imm: 8 rs1: 8 rd: 8
+pc: 116692
+ADDI imm: 1 rs1: 11 rd: 12
+pc: 116696
+ADDI imm: 0 rs1: 11 rd: 14
+pc: 116700
+JAL offset: -3252 rd: 0
+pc: 113448
+SUB rs1: 18 rs2: 9 rd: 18
+pc: 113452
+BLT imm: 2016 rs1: 0 rs2: 18
+pc: 113456
+ADD rs1: 9 rs2: 15 rd: 15
+pc: 113460
+SW imm: 0 rs1: 8 rs2: 21
+pc: 113464
+SW imm: 4 rs1: 8 rs2: 9
+pc: 113468
+SW imm: 88 rs1: 2 rs2: 15
+pc: 113472
+SW imm: 84 rs1: 2 rs2: 12
+pc: 113476
+ADDI imm: 7 rs1: 0 rd: 14
+pc: 113480
+BGE imm: 1728 rs1: 14 rs2: 12
+pc: 115208
+ADDI imm: 8 rs1: 8 rd: 8
+pc: 115212
+JAL offset: -1696 rd: 0
+pc: 113516
+ANDI imm: 4 rs1: 27 rd: 16
+pc: 113520
+BEQ imm: 1036 rs1: 16 rs2: 0
+pc: 114556
+ADDI imm: 0 rs1: 17 rd: 27
+pc: 114560
+ADDI imm: 0 rs1: 13 rd: 21
+pc: 114564
+JAL offset: -728 rd: 0
+pc: 113836
+ADDI imm: 0 rs1: 18 rd: 19
+pc: 113840
+BGE imm: 1032 rs1: 18 rs2: 9
+pc: 114872
+JAL offset: -1896 rd: 0
+pc: 112976
+LBU imm: 0 rs1: 20 rd: 15
+pc: 112980
+BEQ imm: 1616 rs1: 15 rs2: 0
+pc: 114596
+ADDI imm: -1 rs1: 0 rd: 15
+pc: 114600
+SW imm: 20 rs1: 2 rs2: 14
+pc: 114604
+BEQ imm: 1328 rs1: 18 rs2: 15
+pc: 114608
+ADDI imm: 0 rs1: 18 rd: 12
+pc: 114612
+ADDI imm: 0 rs1: 0 rd: 11
+pc: 114616
+ADDI imm: 0 rs1: 21 rd: 10
+pc: 114620
+JAL offset: -19240 rd: 1
+pc: 95380
+ANDI imm: 3 rs1: 10 rd: 15
+pc: 95384
+ANDI imm: 255 rs1: 11 rd: 13
+pc: 95388
+BEQ imm: 1076 rs1: 15 rs2: 0
+pc: 96464
+AND rs1: 15 rs2: 14 rd: 14
+pc: 96468
+BNE imm: 1036 rs1: 14 rs2: 0
+pc: 96472
+ADDI imm: 8 rs1: 10 rd: 10
+pc: 96476
+SLLI shamt: 8 rs1: 15 rd: 15
+pc: 96480
+LUI imm: -268435456 rd: 14
+pc: 96484
+AND rs1: 15 rs2: 14 rd: 14
+pc: 96488
+BNE imm: 1036 rs1: 14 rs2: 0
+pc: 96492
+ADDI imm: 4 rs1: 10 rd: 10
+pc: 96496
+SLLI shamt: 4 rs1: 15 rd: 15
+pc: 96500
+LUI imm: -1073741824 rd: 14
+pc: 96504
+AND rs1: 15 rs2: 14 rd: 14
+pc: 96508
+BNE imm: 1036 rs1: 14 rs2: 0
+pc: 96512
+ADDI imm: 2 rs1: 10 rd: 10
+pc: 96516
+SLLI shamt: 2 rs1: 15 rd: 15
+pc: 96520
+BLT imm: 1044 rs1: 15 rs2: 0
+pc: 96524
+LUI imm: 1073741824 rd: 14
+pc: 96528
+AND rs1: 15 rs2: 14 rd: 15
+pc: 96532
+ADDI imm: 1 rs1: 10 rd: 10
+pc: 96536
+BEQ imm: 1032 rs1: 15 rs2: 0
+pc: 97568
+LW imm: 72 rs1: 19 rd: 9
+pc: 97572
+BEQ imm: 1236 rs1: 9 rs2: 0
+pc: 98808
+JAL offset: -364 rd: 0
+pc: 98444
+LW imm: 4 rs1: 9 rd: 11
+pc: 98448
+JAL offset: -2860 rd: 1
+pc: 95588
+LW imm: 76 rs1: 10 rd: 15
+pc: 95592
+ADDI imm: -16 rs1: 2 rd: 2
+pc: 95596
+SW imm: 8 rs1: 2 rs2: 8
+pc: 95600
+SW imm: 4 rs1: 2 rs2: 9
+pc: 95604
+SW imm: 12 rs1: 2 rs2: 1
+pc: 95608
+SW imm: 0 rs1: 2 rs2: 18
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95608
+instruction: 18948131
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95604
+instruction: 1123875
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95600
+instruction: 9511459
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95596
+instruction: 8463395
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95592
+instruction: 4278255891
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95588
+instruction: 80029571
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 98448
+instruction: 3444568303
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 98444
+instruction: 4498819
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 98808
+instruction: 3915378799
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 97572
+instruction: 201624163
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 97568
+instruction: 76129411
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96536
+instruction: 492643
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96532
+instruction: 1377555
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96528
+instruction: 15202227
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96524
+instruction: 1073743671
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96520
+instruction: 510563
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96516
+instruction: 2594707
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96512
+instruction: 2426131
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96508
+instruction: 464483
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96504
+instruction: 15202099
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96500
+instruction: 3221227319
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96496
+instruction: 4691859
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96492
+instruction: 4523283
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96488
+instruction: 464483
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96484
+instruction: 15202099
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96480
+instruction: 4026533687
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96476
+instruction: 8886163
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96472
+instruction: 8717587
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96468
+instruction: 464483
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 96464
+instruction: 15202099
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95388
+instruction: 34048611
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95384
+instruction: 267777683
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 95380
+instruction: 3504019
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114620
+instruction: 3448746223
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114616
+instruction: 689427
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114612
+instruction: 1427
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114608
+instruction: 591379
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114604
+instruction: 318310627
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114600
+instruction: 14756387
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114596
+instruction: 4293920659
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 112980
+instruction: 604473443
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 112976
+instruction: 673667
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114872
+instruction: 2308960367
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113840
+instruction: 10048611
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113836
+instruction: 592275
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114564
+instruction: 3533697135
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114560
+instruction: 428691
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 114556
+instruction: 560531
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113520
+instruction: 525923
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113516
+instruction: 5109779
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115212
+instruction: 2518675567
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115208
+instruction: 8651795
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113480
+instruction: 1825001571
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113476
+instruction: 7341843
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113472
+instruction: 79768099
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113468
+instruction: 82914339
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113464
+instruction: 9708067
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113460
+instruction: 22290467
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113456
+instruction: 16025523
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113452
+instruction: 2132820067
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113448
+instruction: 1083771187
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 116700
+instruction: 3033526383
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 116696
+instruction: 362259
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 116692
+instruction: 1410579
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 116688
+instruction: 8651795
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115416
+instruction: 1320639587
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115412
+instruction: 7341843
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115408
+instruction: 78719523
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115404
+instruction: 82914339
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115400
+instruction: 13902371
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115396
+instruction: 25436195
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 115392
+instruction: 14124979
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113740
+instruction: 638028387
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 113736
+instruction: 34469779
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 112704
+instruction: 459875
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 112700
+instruction: 8791811
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 68424
+instruction: 1330684143
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 68420
+instruction: 722195
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 67388
+instruction: 492643
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 67384
+instruction: 247539587
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 67380
+instruction: 3691453667
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 67376
+instruction: 870147
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 67372
+instruction: 265491
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 67368
+instruction: 281086099
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 79456
+instruction: 32871
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 79452
+instruction: 16843027
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 81564
+instruction: 4241821923
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 80244
+instruction: 302351459
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 67364
+instruction: 620769519
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 66180
+instruction: 168267875
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 66176
+instruction: 16218003
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 66172
+instruction: 46366307
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 66168
+instruction: 329491
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 66164
+instruction: 15729427
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65700
+instruction: 486539503
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65696
+instruction: 1427
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65692
+instruction: 1084622387
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65688
+instruction: 578913811
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65684
+instruction: 482444563
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65680
+instruction: 2017558931
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>v
+x[ 0] =          0; x[ 1] =          0;
+x[ 2] =          0; x[ 3] =     151692;
+x[ 4] =          0; x[ 5] =          0;
+x[ 6] =          0; x[ 7] =          0;
+x[ 8] =          0; x[ 9] =          0;
+x[10] =          0; x[11] =          0;
+x[12] =          0; x[13] =          0;
+x[14] =          0; x[15] =          0;
+x[16] =          0; x[17] =          0;
+x[18] =          0; x[19] =          0;
+x[20] =          0; x[21] =          0;
+x[22] =          0; x[23] =          0;
+x[24] =          0; x[25] =          0;
+x[26] =          0; x[27] =          0;
+x[28] =          0; x[29] =          0;
+x[30] =          0; x[31] =          0;
+
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>n
+pc: 65680
+ADDI imm: 1924 rs1: 3 rd: 3
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+instruction addres: 65680
+instruction: 2017558931
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>b
+No more backsteps stored.
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>N
+pc: 65680
+ADDI imm: 1924 rs1: 3 rd: 3
+pc: 65684
+ADDI imm: 460 rs1: 3 rd: 10
+pc: 65688
+ADDI imm: 552 rs1: 3 rd: 12
+pc: 65692
+SUB rs1: 12 rs2: 10 rd: 12
+pc: 65696
+ADDI imm: 0 rs1: 0 rd: 11
+pc: 65700
+JAL offset: 464 rd: 1
+pc: 66164
+ADDI imm: 15 rs1: 0 rd: 6
+pc: 66168
+ADDI imm: 0 rs1: 10 rd: 14
+pc: 66172
+BGEU imm: 1084 rs1: 6 rs2: 12
+pc: 66176
+ANDI imm: 15 rs1: 14 rd: 15
+pc: 66180
+BNE imm: 1184 rs1: 15 rs2: 0
+pc: 67364
+JAL offset: 12880 rd: 1
+pc: 80244
+BEQ imm: 1320 rs1: 11 rs2: 0
+pc: 81564
+BNE imm: -2112 rs1: 10 rs2: 13
+pc: 79452
+ADDI imm: 16 rs1: 2 rd: 2
+pc: 79456
+JALR offset: 0 rs1: 1 rd: 0
+pc: 67368
+ADDI imm: 268 rs1: 2 rd: 17
+pc: 67372
+ADDI imm: 0 rs1: 8 rd: 26
+pc: 67376
+LBU imm: 0 rs1: 26 rd: 14
+pc: 67380
+BNE imm: -2600 rs1: 14 rs2: 0
+pc: 67384
+LW imm: 236 rs1: 2 rd: 15
+pc: 67388
+BEQ imm: 1032 rs1: 15 rs2: 0
+pc: 68420
+ADDI imm: 0 rs1: 22 rd: 10
+pc: 68424
+JAL offset: 44276 rd: 1
+pc: 112700
+LW imm: 8 rs1: 12 rd: 14
+pc: 112704
+BEQ imm: 1032 rs1: 14 rs2: 0
+pc: 112708
+JAL offset: -252 rd: 0
+pc: 112456
+LW imm: 100 rs1: 11 rd: 14
+pc: 112460
+ADDI imm: -48 rs1: 2 rd: 2
+pc: 112464
+LUI imm: 8192 rd: 15
+pc: 112468
+SW imm: 16 rs1: 2 rs2: 22
+pc: 112472
+SW imm: 44 rs1: 2 rs2: 1
+pc: 112476
+SW imm: 40 rs1: 2 rs2: 8
+pc: 112480
+SW imm: 36 rs1: 2 rs2: 9
+pc: 112484
+SW imm: 32 rs1: 2 rs2: 18
+pc: 112488
+SW imm: 28 rs1: 2 rs2: 19
+pc: 112492
+SW imm: 24 rs1: 2 rs2: 20
+pc: 112496
+SW imm: 20 rs1: 2 rs2: 21
+pc: 112500
+SW imm: 12 rs1: 2 rs2: 23
+pc: 112504
+SW imm: 8 rs1: 2 rs2: 24
+pc: 112508
+AND rs1: 15 rs2: 14 rd: 15
+pc: 112512
+ADDI imm: 0 rs1: 12 rd: 22
+pc: 112516
+BEQ imm: 1200 rs1: 15 rs2: 0
+pc: 113716
+JAL offset: -572 rd: 0
+pc: 113144
+ADDI imm: 1 rs1: 20 rd: 20
+pc: 113148
+ADDI imm: -32 rs1: 14 rd: 15
+pc: 113152
+BLTU imm: 1096 rs1: 9 rs2: 15
+pc: 114248
+ADDI imm: 1 rs1: 13 rd: 12
+pc: 114252
+BLT imm: -2124 rs1: 18 rs2: 9
+pc: 114256
+LW imm: 12 rs1: 2 rd: 14
+pc: 114260
+ADD rs1: 15 rs2: 9 rd: 15
+pc: 114264
+SW imm: 4 rs1: 8 rs2: 9
+pc: 114268
+SW imm: 0 rs1: 8 rs2: 14
+pc: 114272
+SW imm: 88 rs1: 2 rs2: 15
+pc: 114276
+SW imm: 84 rs1: 2 rs2: 12
+pc: 114280
+ADDI imm: 7 rs1: 0 rd: 14
+pc: 114284
+BGE imm: -2800 rs1: 14 rs2: 12
+pc: 111484
+AND rs1: 24 rs2: 19 rd: 19
+pc: 111488
+JAL offset: -344 rd: 0
+pc: 111144
+SW imm: 40 rs1: 2 rs2: 0
+pc: 111148
+SW imm: 36 rs1: 2 rs2: 0
+pc: 111152
+JAL offset: -1716 rd: 0
+pc: 109436
+LW imm: 88 rs1: 2 rd: 15
+pc: 109440
+BEQ imm: 1608 rs1: 15 rs2: 0
+pc: 109444
+ADDI imm: 45 rs1: 0 rd: 14
+pc: 109448
+SB imm: 199 rs1: 2 rs2: 14
+pc: 109452
+ADDI imm: 0 rs1: 0 rd: 6
+pc: 109456
+ADDI imm: 1 rs1: 19 rd: 19
+pc: 109460
+JAL offset: -7080 rd: 0
+pc: 102380
+ANDI imm: 2 rs1: 18 rd: 21
+pc: 102384
+BEQ imm: 1032 rs1: 21 rs2: 0
+pc: 103416
+LW imm: 236 rs1: 2 rd: 14
+pc: 103420
+ADDI imm: 268 rs1: 2 rd: 17
+pc: 103424
+JAL offset: -840 rd: 0
+pc: 102584
+ANDI imm: 4 rs1: 18 rd: 18
+pc: 102588
+BEQ imm: 1036 rs1: 18 rs2: 0
+pc: 103624
+ADDI imm: 4 rs1: 15 rd: 20
+pc: 103628
+BNE imm: 1032 rs1: 26 rs2: 0
+pc: 103632
+JAL offset: 4916 rd: 0
+pc: 108548
+ADDI imm: 6 rs1: 0 rd: 15
+pc: 108552
+ADDI imm: 0 rs1: 6 rd: 24
+pc: 108556
+BLTU imm: 1292 rs1: 15 rs2: 6
+pc: 108560
+LUI imm: 147456 rd: 15
+pc: 108564
+ADDI imm: 0 rs1: 24 rd: 19
+pc: 108568
+SW imm: 20 rs1: 2 rs2: 20
+pc: 108572
+ADDI imm: -788 rs1: 15 rd: 26
+pc: 108576
+JAL offset: -6216 rd: 0
+pc: 102360
+SW imm: 16 rs1: 2 rs2: 0
+pc: 102364
+ADDI imm: 0 rs1: 0 rd: 6
+pc: 102368
+SW imm: 40 rs1: 2 rs2: 0
+pc: 102372
+SW imm: 36 rs1: 2 rs2: 0
+pc: 102376
+SW imm: 28 rs1: 2 rs2: 0
+pc: 102380
+ANDI imm: 2 rs1: 18 rd: 21
+pc: 102384
+BEQ imm: 1032 rs1: 21 rs2: 0
+pc: 103416
+LW imm: 236 rs1: 2 rd: 14
+pc: 103420
+ADDI imm: 268 rs1: 2 rd: 17
+pc: 103424
+JAL offset: -840 rd: 0
+pc: 102584
+ANDI imm: 4 rs1: 18 rd: 18
+pc: 102588
+BEQ imm: 1036 rs1: 18 rs2: 0
+pc: 103624
+ADDI imm: 4 rs1: 15 rd: 20
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>N
+pc: 103628
+BNE imm: 1032 rs1: 26 rs2: 0
+pc: 104660
+ADDI imm: -1 rs1: 26 rd: 26
+pc: 104664
+BNE imm: -2088 rs1: 15 rs2: 0
+pc: 102576
+BLT imm: 1844 rs1: 13 rs2: 15
+pc: 104420
+ADDI imm: -1 rs1: 0 rd: 15
+pc: 104424
+ADDI imm: 0 rs1: 18 rd: 27
+pc: 104428
+BEQ imm: 1040 rs1: 6 rs2: 15
+pc: 104432
+OR rs1: 19 rs2: 21 rd: 15
+pc: 104436
+ANDI imm: -129 rs1: 18 rd: 27
+pc: 104440
+BEQ imm: 1712 rs1: 15 rs2: 0
+pc: 106152
+BNE imm: -2720 rs1: 6 rs2: 0
+pc: 106156
+ADDI imm: 0 rs1: 27 rd: 18
+pc: 106160
+ADDI imm: 0 rs1: 0 rd: 6
+pc: 106164
+ADDI imm: 0 rs1: 0 rd: 24
+pc: 106168
+ADDI imm: 432 rs1: 2 rd: 26
+pc: 106172
+JAL offset: -2128 rd: 0
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>N
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+pc: 105088
+SW imm: 232 rs1: 2 rs2: 13
+pc: 105092
+ADDI imm: 8 rs1: 17 rd: 17
+pc: 105096
+BGE imm: -2088 rs1: 21 rs2: 13
+pc: 103008
+ADDI imm: 88 rs1: 0 rd: 15
+pc: 103012
+BNE imm: 1032 rs1: 25 rs2: 14
+pc: 104044
+LBU imm: 199 rs1: 2 rd: 14
+pc: 104048
+ADDI imm: 0 rs1: 6 rd: 19
+pc: 104052
+BGE imm: 1032 rs1: 6 rs2: 24
+pc: 105084
+SW imm: 236 rs1: 2 rs2: 14
+Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) 
+>B
+finish

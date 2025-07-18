@@ -827,7 +827,7 @@ int main(int argc, char *argv[]){
                             flag_error=TRUE;
                             break;
                         }
-                        printf("stored: %d\n", x[rs2]);
+                        //printf("stored: %d\n", x[rs2]);
                         break;
 
                     default:

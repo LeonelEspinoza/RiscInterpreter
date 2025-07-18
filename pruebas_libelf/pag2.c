@@ -4,10 +4,10 @@
 #include <stdint.h>
 #include <malloc.h>
 
-// Tamaño bloque (2MB = 2**21 bytes)
+// Block size (2MB = 2**21 bytes)
 #define BLOCK_SIZE 2097152
 
-// Cantidad de bloques & tamaño tabla de bloques (2**11)
+// Number of blocks & block table size (2**11)
 #define BLOCK_TABLE_SIZE 2048
 
 /* Structure block_entry
@@ -20,7 +20,7 @@ typedef struct block_entry{
     int     no;         // Block's Number
     int     start_addr; // Block's start addr
     char    mem_init;   // Boolean to check if memory is initialized
-    uint8_t*   mem;        // Block's memory pointer
+    uint8_t*   mem;     // Block's memory pointer
 }block_entry;
 
 /* Initialize the memory of a block entry if not initialized.

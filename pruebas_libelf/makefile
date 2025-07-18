@@ -30,7 +30,7 @@ all:
 	less README.md
 
 %.gcc: %.c
-	gcc -o $@ $< -lelf
+	gcc -O1 -o $@ $< -lelf
 
 %.s: %.c
 	${CC} -S ${OFLAGS} $<

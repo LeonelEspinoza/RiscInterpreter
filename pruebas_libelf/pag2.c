@@ -76,11 +76,15 @@ int clean_block_table(block_entry* be){
     }
 }
 
-/* Writes the char given in the block_table at the logical address given
+/* Writes the byte given in the block_table at the logical address given
 @param bt block_table containing all block_entry
 @param logical_addr logical address to write
 @param c character to be written
 @return 0 if succesful
+
+Error code 1 -> block number out of limits
+
+Error code 2 -> offset out of limits
 */
 int write_in(block_entry *bt, uint32_t logical_addr, uint8_t c){
     
@@ -88,12 +92,12 @@ int write_in(block_entry *bt, uint32_t logical_addr, uint8_t c){
     uint32_t offset   = logical_addr & 0b111111111111111111111;
     
     if(block_no >= BLOCK_TABLE_SIZE){
-        errx(EXIT_FAILURE, "<write_in> ERROR: block number (%u) assigned to addres \"%u\" is out of limits\n", block_no, logical_addr);
+        printf("<write_in> ERROR: block number (%u) assigned to addres \"%u\" is out of limits\n", block_no, logical_addr);
         return 1;
     }
     if(offset >= BLOCK_SIZE){
-        errx(EXIT_FAILURE, "<write_in> ERROR: offset (%u) assigned to addres \"%u\" is out of limits\n", offset, logical_addr);
-        return 1;
+        printf("<write_in> ERROR: offset (%u) assigned to addres \"%u\" is out of limits\n", offset, logical_addr);
+        return 2;
     }
 
     if(!bt[block_no].mem_init){
@@ -105,32 +109,66 @@ int write_in(block_entry *bt, uint32_t logical_addr, uint8_t c){
     return 0;
 }
 
-/* Reads the block_table at the logical address given
+/* Checks state of address given
 @param bt block_table containing all block_entry
 @param logical_addr logical address to read
-@return uint8_t (1 byte) in logical address
+@return 0 if succesful; 1 if block number out of limits; 2 if offset out of limits; 3 if block entry not initialized.
 */
-uint8_t read_from(block_entry *bt, uint32_t logical_addr){
+uint8_t check_address(block_entry *bt, uint32_t logical_addr){
 
     uint32_t block_no = logical_addr >> 21;
     uint32_t offset   = logical_addr & 0b111111111111111111111;
 
     if(block_no >= BLOCK_TABLE_SIZE){
-        errx(EXIT_FAILURE, "<read_from> ERROR: block number (%u) assigned to addres \"%u\" is out of limits\n", block_no, logical_addr);
+        printf("<read_from> ERROR: block number (%u) assigned to address \"%u\" is out of limits\n", block_no, logical_addr);
         return 1;
     }
     if(offset >= BLOCK_SIZE){
-        errx(EXIT_FAILURE, "<read_from> ERROR: offset (%u) assigned to addres \"%u\" is out of limits\n", offset, logical_addr);
-        return 1;
+        printf("<read_from> ERROR: offset (%u) assigned to address \"%u\" is out of limits\n", offset, logical_addr);
+        return 2;
     }
 
     if(!bt[block_no].mem_init){
-        errx(EXIT_FAILURE, "<read_from> ERROR: reading uninitialized block_entry memory\n");
+        //printf("<read_from> Warning: reading uninitialized block_entry memory\n");
+        return 3;
+    }
+    //printf("#%i , offset %i \n",block_no,offset);
+    return 0; 
+}
+
+/* Reads the block_table at the logical address given
+@param bt block_table containing all block_entry
+@param logical_addr logical address to read
+@param ret  var to store the byte at the logical address
+@return 0 if succesful
+
+Error code 1 -> block number out of limits
+
+Error code 2 -> offset out of limits
+
+Error code 3 -> Reading uninitialized address
+*/
+uint8_t read_from(block_entry *bt, uint32_t logical_addr, uint8_t *ret){
+
+    uint32_t block_no = logical_addr >> 21;
+    uint32_t offset   = logical_addr & 0b111111111111111111111;
+
+    if(block_no >= BLOCK_TABLE_SIZE){
+        printf("<read_from> ERROR: block number (%u) assigned to address \"%u\" is out of limits\n", block_no, logical_addr);
         return 1;
     }
+    if(offset >= BLOCK_SIZE){
+        printf("<read_from> ERROR: offset (%u) assigned to address \"%u\" is out of limits\n", offset, logical_addr);
+        return 2;
+    }
 
+    if(!bt[block_no].mem_init){
+        printf("<read_from> Warning: reading uninitialized block_entry memory\n");
+        return 3;
+    }
     //printf("#%i , offset %i \n",block_no,offset);
-    return bt[block_no].mem[offset];
+    *ret = bt[block_no].mem[offset];
+    return 0; 
 }
 
 /* Return pointer to logical addres given
@@ -175,7 +213,7 @@ size_t write_in_bulk(block_entry *bt, uint32_t start_logical_addr, void *buf, si
 
     for(size_t i=0; i < content_size; i++, logical_addr++){
         if(write_in(bt, logical_addr, ((uint8_t*)buf)[i])){
-            errx(EXIT_FAILURE, "<write_in_bulk> ERROR: filed to write at %u address. Wrote %lu bytes.", logical_addr, i);
+            printf("<write_in_bulk> ERROR: filed to write at %u address. Wrote %lu bytes.\n", logical_addr, i);
             return i;
         }
     }
@@ -188,13 +226,16 @@ size_t write_in_bulk(block_entry *bt, uint32_t start_logical_addr, void *buf, si
 @param start_logical_addr logical address to start reading at
 @param buf buffer for content read
 @param content_size total size of content to be read in bytes
-@return bytes written
+@return bytes read
 */
 size_t read_from_bulk(block_entry *bt, uint32_t start_logical_addr, void *buf, size_t content_size){    
     uint32_t logical_addr = start_logical_addr;
     
     for( size_t i = 0; i < content_size; i++, logical_addr++){
-        ((uint8_t *)buf)[i] = read_from(bt, logical_addr);
+        if(read_from(bt, logical_addr,&(((uint8_t *)buf)[i]))){
+            printf("<read_from_bulk> ERROR: couldn't read byte from logical address: %u\n", logical_addr);
+            return i;
+        }
     }
 
     return logical_addr - start_logical_addr;

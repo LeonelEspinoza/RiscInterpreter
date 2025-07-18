@@ -357,6 +357,7 @@ int main(int argc, char *argv[]){
     char input;
 
     // bools
+    uint8_t flag_error = FALSE;
     uint8_t stop = TRUE;
     uint8_t details = FALSE;
     uint64_t i = 0;
@@ -364,8 +365,9 @@ int main(int argc, char *argv[]){
     while(TRUE){
         // Ask for user input
         if(stop){
-            printf("Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) \n");
+            printf("Input: break(B) next-step(n) back-step(b) next-breakpoint(N) View-Registers-Values(v) Toggle-instruction-details(d) \n>");
             scanf(" %1c", &input);
+            printf("\n");
             // End execution
             if(input == 'B'){
                 break;
@@ -381,10 +383,16 @@ int main(int argc, char *argv[]){
             // Toggle to print instruction details (program counter)
             if(input == 'd'){
                 details= !details;
+                printf("Show more instruction details: %s\n", details? "True" : "False");
                 continue;
             }
             if(input == 'b'){
+                if(back_log.bot==back_log.top){
+                    printf("No more backsteps stored.\n");
+                    continue;
+                }
                 next_pc = exe_go_back(&back_log, block_table, x);
+                pc = next_pc;
                 continue;
             }
             // Toggle stop flag and wait till next stop
@@ -407,11 +415,30 @@ int main(int argc, char *argv[]){
         }
 
         mod_val = 0;
+        
+        
+        // Check program counter value is valid
+        if(next_pc > max_vaddr || next_pc < min_vaddr){
+            printf("ERROR: trying to execute an out of limit instruction. (min_vaddr: %u, max_vaddr: %u, instruction addr: %u)\n", min_vaddr, max_vaddr, next_pc);
+            stop=TRUE;
+            flag_error=TRUE;
+            continue;
+        }
+        
         // Update program counter
-        pc = next_pc;
+        if(!flag_error){
+            pc = next_pc;
+        }
+
+        flag_error = FALSE;
 
         // Get instruction to interpret
-        read_from_bulk(block_table, pc, &inst, 4);
+        if(read_from_bulk(block_table, pc, &inst, 4)!= 4){
+            printf("ERROR: could't read instruction at: %u\n", pc);
+            stop = TRUE;
+            flag_error=TRUE;
+            continue;
+        }
         
         // Prepare possible next instruccion address
         next_pc = pc + 4;
@@ -446,8 +473,8 @@ int main(int argc, char *argv[]){
         if(details){
             //print instruction details
             printf("pc: %u\n", pc);
-            printf("inst: 0x%x\n", inst);
-            printf("opcode: 0x%x\n", opcode);
+            //printf("inst: 0x%x\n", inst);
+            //printf("opcode: 0x%x\n", opcode);
             //printf("rd: %d\n", rd);
             //printf("func3: 0x%x\n", func3);
             //printf("rs1: %d\n", rs1);
@@ -586,14 +613,20 @@ int main(int argc, char *argv[]){
                     imm = imm | 0b11111111111111111111100000000000;
                 }
                 
-                int32_t mem;
+                int32_t mem = 0;
 
                 switch (func3) {
                     //Load Byte
                     case FUNC3_LB:
                         printf("LB imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        int8_t lb_mem;
-                        read_from_bulk(block_table, (x[rs1] + imm), &lb_mem, sizeof(lb_mem));
+                        int8_t lb_mem = 0;
+
+                        if(read_from_bulk(block_table, (x[rs1] + imm), &lb_mem, sizeof(lb_mem))!= sizeof(lb_mem)){
+                            printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
                         
                         mem = lb_mem;
                         /*
@@ -610,8 +643,14 @@ int main(int argc, char *argv[]){
                     //Load Halfword
                     case FUNC3_LH:
                         printf("LH imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        int16_t lh_mem;
-                        read_from_bulk(block_table, (x[rs1] + imm), &lh_mem, sizeof(lh_mem));
+                        int16_t lh_mem = 0;
+                        if(read_from_bulk(block_table, (x[rs1] + imm), &lh_mem, sizeof(lh_mem))!=sizeof(lh_mem)){
+                            printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
+                        
                         mem = lh_mem;
                         /*
                         mem = mem & 0b1111111111111111;
@@ -627,7 +666,12 @@ int main(int argc, char *argv[]){
                     case FUNC3_LW:
                         printf("LW imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
 
-                        read_from_bulk(block_table, (x[rs1] + imm), &mem, sizeof(mem));
+                        if(read_from_bulk(block_table, (x[rs1] + imm), &mem, sizeof(mem))!=sizeof(mem)){
+                            printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
                         
                         mod_val = assign_reg_val(x,rd,mem);
                         //printf("x[rd=%u] = %d\n",rd,x[rd]);
@@ -636,8 +680,13 @@ int main(int argc, char *argv[]){
                     //Load Byte Unsigned
                     case FUNC3_LBU:
                         printf("LBU imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        uint8_t lbu_mem;
-                        read_from_bulk(block_table, (x[rs1] + imm), &lbu_mem, sizeof(lbu_mem));
+                        uint8_t lbu_mem = 0;
+                        if(read_from_bulk(block_table, (x[rs1] + imm), &lbu_mem, sizeof(lbu_mem)) != sizeof(lbu_mem)){
+                            printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
                         mod_val = assign_reg_val(x,rd,(int32_t) lbu_mem);
                         //printf("x[rd]: %d\n",x[rd]);
                         break;
@@ -645,8 +694,13 @@ int main(int argc, char *argv[]){
                     //Load Halfword Unsigned
                     case FUNC3_LHU:
                         printf("LHU imm: %d rs1: %u rd: %u\n", imm, rs1, rd);
-                        uint16_t lhu_mem;
-                        read_from_bulk(block_table, (x[rs1] + imm), &lhu_mem, sizeof(lhu_mem));
+                        uint16_t lhu_mem = 0;
+                        if(read_from_bulk(block_table, (x[rs1] + imm), &lhu_mem, sizeof(lhu_mem)) != sizeof(lhu_mem)){
+                            printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
                         mod_val = assign_reg_val(x,rd,(int32_t) lhu_mem);
                         //printf("x[rd]: %d\n",x[rd]);
                         break;
@@ -674,8 +728,34 @@ int main(int argc, char *argv[]){
                     case FUNC3_SB:
                         printf("SB imm: %d rs1: %u rs2: %u\n", imm, rs1, rs2);
                         int8_t sb_tmp = (x[rs2] & 0b11111111);
-                        read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(sb_tmp));
-                        write_in_bulk(block_table, (x[rs1] + imm), &(sb_tmp), sizeof(sb_tmp));
+                        
+                        //Check address is initialized or not
+                        uint8_t _sb = check_address(block_table, (x[rs1] + imm + sizeof(sb_tmp)));
+                        if(_sb){
+                            if(_sb == 1 || _sb == 2){
+                                printf("ERROR: address %u is out of limits", (x[rs1] + imm + sizeof(sb_tmp)));
+                                stop = TRUE;
+                                flag_error = TRUE;
+                                break;
+                            }
+                            // Set mod_val as 0
+                            mod_val = 0;
+                        }else{
+                            // Get value at address for back-step
+                            if(read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(sb_tmp)) != sizeof(sb_tmp)){
+                                printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                                stop = TRUE;
+                                flag_error=TRUE;
+                                break;
+                            }
+                        }
+                        
+                        if(write_in_bulk(block_table, (x[rs1] + imm), &(sb_tmp), sizeof(sb_tmp)) != sizeof(sb_tmp)){
+                            printf("ERROR: couldn't store all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
 
                         //printf("stored: %d\n", x[rs2]);
                         break;
@@ -684,17 +764,70 @@ int main(int argc, char *argv[]){
                     case FUNC3_SH:
                         printf("SH imm: %d rs1: %u rs2: %u\n", imm, rs1, rs2);
                         int16_t sh_tmp = (x[rs2] & 0b1111111111111111);
-                        read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(sh_tmp));
-                        write_in_bulk(block_table, (x[rs1] + imm), &(sh_tmp), sizeof(sh_tmp));
+                        
+                        //Check address is initialized or not
+                        uint8_t _sh = check_address(block_table, (x[rs1] + imm + sizeof(sh_tmp)));
+                        if(_sh){
+                            if(_sb == 1 || _sb == 2){
+                                printf("ERROR: address %u is out of limits", (x[rs1] + imm + sizeof(sh_tmp)));
+                                stop = TRUE;
+                                flag_error = TRUE;
+                                break;
+                            }
+                            // Set mod_val as 0
+                            mod_val = 0;
+                        }else{
+                            // Get value at address for back-step
+                            if(read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(sh_tmp)) != sizeof(sh_tmp)){
+                                printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                                stop = TRUE;
+                                flag_error=TRUE;
+                                break;
+                            }
+                        }
+
+                        if(write_in_bulk(block_table, (x[rs1] + imm), &(sh_tmp), sizeof(sh_tmp)) != sizeof(sh_tmp)){
+                            printf("ERROR: couldn't store all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
                         //printf("stored: %d\n", x[rs2]);
                         break;
 
                     //Store Word
                     case FUNC3_SW:
                         printf("SW imm: %d rs1: %u rs2: %u\n", imm, rs1, rs2);
-                        read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(x[rs2]));
-                        write_in_bulk(block_table, (x[rs1] + imm), &(x[rs2]), sizeof(x[rs2]));
-                        //printf("stored: %d\n", x[rs2]);
+                        
+                        //Check address is initialized or not
+                        uint8_t _sw = check_address(block_table, (x[rs1] + imm + sizeof(x[rs2])));
+                        if(_sw){
+                            if(_sw==1 || _sw==2){
+                                printf("ERROR: address %u is out of limits", (x[rs1] + imm + sizeof(x[rs2])));
+                                stop = TRUE;
+                                flag_error = TRUE;
+                                break;
+                            }
+
+                            // Set modified value as 0
+                            mod_val = 0;
+                        }else{
+                            // Get value at address for back-step
+                            if(read_from_bulk(block_table, (x[rs1] + imm), &(mod_val), sizeof(x[rs2])) != sizeof(x[rs2])){
+                                printf("ERROR: couldn't read all contents at: %u\n", x[rs1] + imm);
+                                stop = TRUE;
+                                flag_error=TRUE;
+                                break;
+                            }
+                        }
+
+                        if(write_in_bulk(block_table, (x[rs1] + imm), &(x[rs2]), sizeof(x[rs2])) != sizeof(x[rs2])){
+                            printf("ERROR: couldn't store all contents at: %u\n", x[rs1] + imm);
+                            stop = TRUE;
+                            flag_error=TRUE;
+                            break;
+                        }
+                        printf("stored: %d\n", x[rs2]);
                         break;
 
                     default:
@@ -948,12 +1081,13 @@ int main(int argc, char *argv[]){
                 return 1;
 
         }
-        add_step(&back_log, pc, mod_val);
-        if(next_pc > max_vaddr || next_pc < min_vaddr){
-            errx(EXIT_FAILURE, "ERROR: trying to execute an out of limit instruction. (min_vaddr: %u, max_vaddr: %u, instruction addr: %u)", min_vaddr, max_vaddr, next_pc);
+        if(!flag_error){
+            add_step(&back_log, pc, mod_val);
         }
     }
 
     printf("finish\n");
     return 0;
 }
+
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

@@ -70,10 +70,11 @@ void add_step(backlog *b,uint32_t inst,uint32_t mod_val){
 back_step go_back(backlog *b){
     uint32_t top = b->top;
     uint32_t bot = b->bot;
-    if(top==bot){
-        errx(EXIT_FAILURE, "ERROR: No more backsteps stored.\n");
-    }
     back_step ret = (b->steps)[top];
+    if(top==bot){
+        printf("No more backsteps stored.\n");
+        return ret;
+    }
     b->top = top==0? BACKLOG_SIZE-1 : top - 1;
     return ret;
 }
